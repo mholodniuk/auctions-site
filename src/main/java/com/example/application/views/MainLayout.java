@@ -11,13 +11,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MainLayout extends AppLayout {
     private final SecurityService securityService;
@@ -52,8 +47,8 @@ public class MainLayout extends AppLayout {
     private void createDrawer() {
         var authenticatedUser = securityService.getAuthenticatedUser();
 
-        var isAdmin = authenticatedUser.getAuthorities().stream()
-                .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+        var isAdmin = authenticatedUser.getAuthorities()
+                .stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
         var availableRoutes = new ArrayList<RouterLink>();
 
@@ -64,10 +59,7 @@ public class MainLayout extends AppLayout {
         }
 
         var verticalLayout = new VerticalLayout();
-        availableRoutes.forEach(route -> {
-            verticalLayout.add(route);
-            System.out.println(route.toString());
-        });
+        availableRoutes.forEach(verticalLayout::add);
         addToDrawer(verticalLayout);
 
     }

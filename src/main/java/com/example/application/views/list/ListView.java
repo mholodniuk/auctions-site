@@ -5,17 +5,14 @@ import com.example.application.data.service.CRMService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.LitRenderer;
-import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
@@ -41,19 +38,36 @@ public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
     TextField filterText = new TextField();
     ContactForm form;
+    Dialog dialog;
     CRMService service;
 
     public ListView(CRMService service) {
         this.service = service;
+        configureForm();
+        this.dialog = new Dialog();
+
+        dialog.setHeaderTitle("New employee");
+        VerticalLayout dialogLayout = createDialogLayout();
+        dialog.add(dialogLayout);
+        add(dialog);
+
         addClassName("list-view");
         setSizeFull();
-
         configureGrid();
-        configureForm();
 
         add(getToolbar(), getContent());
         updateList();
-        closeEditor();
+//        closeEditor();
+    }
+
+    private VerticalLayout createDialogLayout() {
+        VerticalLayout dialogLayout = new VerticalLayout(form);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "32rem").set("max-width", "100%");
+
+        return dialogLayout;
     }
 
     private void updateList() {
@@ -75,9 +89,7 @@ public class ListView extends VerticalLayout {
     }
 
     private Component getContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, form);
-        content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
+        HorizontalLayout content = new HorizontalLayout(grid);
         content.addClassName("content");
         content.setSizeFull();
         return content;
@@ -85,7 +97,8 @@ public class ListView extends VerticalLayout {
 
     private void configureForm() {
         form = new ContactForm(service.findAllCompanies(), service.findAllStatuses());
-        form.setWidth("25em");
+        form.setWidth("30em");
+        form.setVisible(true);
         form.addSaveListener(this::saveContact);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
@@ -127,14 +140,14 @@ public class ListView extends VerticalLayout {
             closeEditor();
         } else {
             form.setContact(contact);
-            form.setVisible(true);
             addClassName("editing");
+            dialog.open();
         }
     }
 
     private void closeEditor() {
+        dialog.close();
         form.setContact(null);
-        form.setVisible(false);
         removeClassName("editing");
     }
 }
