@@ -38,26 +38,26 @@ public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
     TextField filterText = new TextField();
     ContactForm form;
-    Dialog dialog;
+    Dialog dialog = new Dialog();
     CRMService service;
 
     public ListView(CRMService service) {
         this.service = service;
-        configureForm();
-        this.dialog = new Dialog();
-
-        dialog.setHeaderTitle("New employee");
-        VerticalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-        add(dialog);
-
         addClassName("list-view");
+        configureForm();
+        configureDialog();
         setSizeFull();
         configureGrid();
 
         add(getToolbar(), getContent());
         updateList();
-//        closeEditor();
+    }
+
+    private void configureDialog() {
+        dialog.setHeaderTitle("New employee");
+        VerticalLayout dialogLayout = createDialogLayout();
+        dialog.add(dialogLayout);
+        add(dialog);
     }
 
     private VerticalLayout createDialogLayout() {
@@ -79,8 +79,6 @@ public class ListView extends VerticalLayout {
         grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setColumns("firstName", "lastName", "email");
-//        grid.addComponentColumn(i -> new Image("theme/ajax-loader.gif", "alt text")).setHeader("Preview");
-        // lub zdjęcie będzie ukryte i dopieru po otwarciu modala się pokaże
         grid.addColumn(contact -> contact.getStatus().getName()).setHeader("Status");
         grid.addColumn(contact -> contact.getCompany().getName()).setHeader("Company");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
@@ -97,7 +95,7 @@ public class ListView extends VerticalLayout {
 
     private void configureForm() {
         form = new ContactForm(service.findAllCompanies(), service.findAllStatuses());
-        form.setWidth("30em");
+        form.setWidth("32em");
         form.setVisible(true);
         form.addSaveListener(this::saveContact);
         form.addDeleteListener(this::deleteContact);
