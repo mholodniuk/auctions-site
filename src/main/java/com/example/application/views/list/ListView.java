@@ -8,7 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -61,11 +61,16 @@ public class ListView extends VerticalLayout {
     }
 
     private VerticalLayout createDialogLayout() {
-        VerticalLayout dialogLayout = new VerticalLayout(form);
+        Image image = new Image("images/linux.png", "Alt");
+        image.setMaxHeight("20rem");
+        image.setMaxWidth("20rem");
+        VerticalLayout dialogLayout = new VerticalLayout(image, form);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "32rem").set("max-width", "100%");
+        dialogLayout.setAlignItems(Alignment.CENTER);
+        dialogLayout.getStyle()
+                .set("width", "32rem")
+                .set("max-width", "100%");
 
         return dialogLayout;
     }

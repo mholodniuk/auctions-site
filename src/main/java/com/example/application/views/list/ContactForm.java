@@ -13,9 +13,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.FileBuffer;
-import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
@@ -32,11 +29,9 @@ public class ContactForm extends FormLayout {
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
+    private String currentUrl = "";
 
     Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
-
-    FileBuffer fileBuffer = new FileBuffer();
-    Upload singleFileUpload = new Upload(fileBuffer);
 
     public ContactForm(List<Company> companies, List<Status> statuses) {
         addClassName("contact-form");
@@ -46,14 +41,7 @@ public class ContactForm extends FormLayout {
         status.setItems(statuses);
         status.setItemLabelGenerator(Status::getName);
 
-        singleFileUpload.addSucceededListener(event -> {
-            FileData savedFileData = fileBuffer.getFileData();
-            String absolutePath = savedFileData.getFile().getAbsolutePath();
-
-            System.out.printf("File saved to: %s%n", absolutePath);
-        });
-
-        add(firstName, lastName, email, company, status, singleFileUpload, createButtonsLayout());
+        add(firstName, lastName, email, company, status, createButtonsLayout());
     }
 
     public void setContact(Contact contact) {

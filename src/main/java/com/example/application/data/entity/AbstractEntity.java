@@ -1,18 +1,16 @@
 package com.example.application.data.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Version;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@ToString
 @MappedSuperclass
 public abstract class AbstractEntity {
     @Id
@@ -22,4 +20,17 @@ public abstract class AbstractEntity {
 
     @Version
     private int version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        AbstractEntity that = (AbstractEntity) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

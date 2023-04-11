@@ -5,7 +5,10 @@ import com.example.application.views.list.ListView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -30,16 +33,19 @@ public class MainLayout extends AppLayout {
                 LumoUtility.Margin.MEDIUM);
 
         String loggedInUser = securityService.getAuthenticatedUser().getUsername();
-        Button logout = new Button("Log out " + loggedInUser, e -> securityService.logout());
+        Button logout = new Button("Log out", e -> securityService.logout());
+        Button account = new Button(loggedInUser, new Icon(VaadinIcon.USER));
+        account.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate("account")));
 
-        var header = new HorizontalLayout(new DrawerToggle(), logo, logout);
+        account.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        account.setIconAfterText(true);
+
+        var header = new HorizontalLayout(new DrawerToggle(), logo, account, logout);
 
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(logo);
         header.setWidthFull();
-        header.addClassNames(
-                LumoUtility.Padding.Vertical.NONE,
-                LumoUtility.Padding.Horizontal.MEDIUM);
+        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
 
         addToNavbar(header);
     }
@@ -54,6 +60,9 @@ public class MainLayout extends AppLayout {
 
         availableRoutes.add(new RouterLink("Explore auctions", ListView.class));
         availableRoutes.add(new RouterLink("My auctions", DashboardView.class));
+        var acc = new RouterLink("My account", AccountView.class);
+        acc.setVisible(false);
+        availableRoutes.add(acc);
         if (isAdmin) {
             availableRoutes.add(new RouterLink("Archive", ListView.class));
         }
@@ -61,6 +70,5 @@ public class MainLayout extends AppLayout {
         var verticalLayout = new VerticalLayout();
         availableRoutes.forEach(verticalLayout::add);
         addToDrawer(verticalLayout);
-
     }
 }
