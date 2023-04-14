@@ -24,10 +24,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 // - Grid/Filters-Sorting
 // - Grid/Buffered -> do edytowania wierszy inline
 // - Icons
-//
-//
-//
-
 
 
 @AnonymousAllowed

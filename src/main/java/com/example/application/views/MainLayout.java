@@ -38,34 +38,26 @@ public class MainLayout extends AppLayout {
         UserDetails userDetails = securityService.getAuthenticatedUser();
         System.out.println(userDetails);
 
+        var header = new HorizontalLayout(new DrawerToggle(), logo);
+        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        header.expand(logo);
+        header.setWidthFull();
+        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
+
         if (userDetails != null) {
             Button logout = new Button("Log out", e -> securityService.logout());
             Button account = new Button(userDetails.getUsername(), new Icon(VaadinIcon.USER));
             account.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate("account")));
-
             account.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             account.setIconAfterText(true);
 
-            var header = new HorizontalLayout(new DrawerToggle(), logo, account, logout);
-
-            header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-            header.expand(logo);
-            header.setWidthFull();
-            header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
-
-            addToNavbar(header);
+            header.add(account, logout);
         } else {
             Button login = new Button("Log in", e -> UI.getCurrent().navigate("login"));
             login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            var header = new HorizontalLayout(new DrawerToggle(), logo, login);
-
-            header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-            header.expand(logo);
-            header.setWidthFull();
-            header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
-
-            addToNavbar(header);
+            header.add(login);
         }
+        addToNavbar(header);
     }
 
     private void createDrawer() {

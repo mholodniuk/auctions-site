@@ -15,7 +15,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("Login | Vaadin CRM")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
-
     private final LoginForm login = new LoginForm();
 
     public LoginView() {
@@ -25,6 +24,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setJustifyContentMode(JustifyContentMode.CENTER);
 
         login.setAction("login");
+        login.setForgotPasswordButtonVisible(false);
 
         add(new H1("Sample Vaadin app"), login);
     }
