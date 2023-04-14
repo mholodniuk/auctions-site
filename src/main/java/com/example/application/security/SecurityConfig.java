@@ -28,7 +28,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         UserDetails user = User.builder()
                 .username("user")
                 // password = password with this hash, don't tell anybody :-)
-                .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+                .password("{noop}user")
                 .roles("USER")
                 .build();
         UserDetails admin = User.builder()

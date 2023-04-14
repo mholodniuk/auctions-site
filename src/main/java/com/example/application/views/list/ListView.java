@@ -15,7 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.PermitAll;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 // Fajne komponenty:
 // - Grid -> do wyświetlenia listy rzeczy
@@ -30,7 +30,7 @@ import jakarta.annotation.security.PermitAll;
 
 
 
-@PermitAll
+@AnonymousAllowed
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Contacts | Vaadin CRM")
 public class ListView extends VerticalLayout {
@@ -55,21 +55,22 @@ public class ListView extends VerticalLayout {
 
     private void configureDialog() {
         dialog.setHeaderTitle("New employee");
-        VerticalLayout dialogLayout = createDialogLayout();
+        HorizontalLayout dialogLayout = createDialogLayout();
         dialog.add(dialogLayout);
         add(dialog);
     }
 
-    private VerticalLayout createDialogLayout() {
+    private HorizontalLayout createDialogLayout() {
         Image image = new Image("images/linux.png", "Alt");
+        image.addClassName("sample-image");
         image.setMaxHeight("20rem");
         image.setMaxWidth("20rem");
-        VerticalLayout dialogLayout = new VerticalLayout(image, form);
+        HorizontalLayout dialogLayout = new HorizontalLayout(image, form);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(Alignment.CENTER);
         dialogLayout.getStyle()
-                .set("width", "32rem")
+                .set("width", "48rem")
                 .set("max-width", "100%");
 
         return dialogLayout;

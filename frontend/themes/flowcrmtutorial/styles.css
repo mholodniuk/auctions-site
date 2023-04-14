@@ -9,3 +9,7 @@ a[highlight] {
     font-weight: bold;
     text-decoration: underline;
 }
+
+.sample-image {
+    margin-right: 4rem;
+}
