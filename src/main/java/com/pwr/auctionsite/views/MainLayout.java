@@ -1,7 +1,7 @@
 package com.pwr.auctionsite.views;
 
 import com.pwr.auctionsite.security.SecurityService;
-import com.pwr.auctionsite.views.list.ListView;
+import com.pwr.auctionsite.views.list.ActiveAuctionsListView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -64,7 +64,7 @@ public class MainLayout extends AppLayout {
         var authenticatedUser = securityService.getAuthenticatedUser();
         var availableRoutes = new ArrayList<RouterLink>();
 
-        availableRoutes.add(new RouterLink("Explore contacts", ListView.class));
+        availableRoutes.add(new RouterLink("Explore auctions", ActiveAuctionsListView.class));
 
         if (authenticatedUser != null) {
             var isAdmin = authenticatedUser.getAuthorities()

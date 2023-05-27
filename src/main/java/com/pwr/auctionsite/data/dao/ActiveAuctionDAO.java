@@ -6,6 +6,7 @@ import com.pwr.auctionsite.data.mapper.ActiveAuctionRowMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public class ActiveAuctionDAO {
         var sql = """
                 SELECT *
                 FROM active_auctions_v
+                ORDER BY expiration_date
+                LIMIT 1000
                 """;
         return template.query(sql, rowMapper);
     }

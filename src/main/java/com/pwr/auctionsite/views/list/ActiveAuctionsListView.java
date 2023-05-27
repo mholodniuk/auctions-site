@@ -5,6 +5,7 @@ import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -12,11 +13,17 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Stream;
 
 // Fajne komponenty:
 // - Grid -> do wyświetlenia listy rzeczy
@@ -30,14 +37,14 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @AnonymousAllowed
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Auctions")
-public class ListView extends VerticalLayout {
+public class ActiveAuctionsListView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
     TextField filterText = new TextField();
     ContactForm form;
     Dialog dialog = new Dialog();
     AuctionService service;
 
-    public ListView(AuctionService service) {
+    public ActiveAuctionsListView(AuctionService service) {
         this.service = service;
         addClassName("list-view");
 //        configureForm();
@@ -85,7 +92,9 @@ public class ListView extends VerticalLayout {
         grid.addColumn(ActiveAuctionDTO::buyer).setHeader("Current Winner");
         grid.addColumn(ActiveAuctionDTO::currentBid).setHeader("Current Bid");
         grid.addColumn(ActiveAuctionDTO::buyNowPrice).setHeader("Buy Now Price");
-
+        grid.addColumn(auction -> auction.expirationDate().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
+                .setHeader("Expiration date");
+        grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
 //        grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
     }
 
@@ -150,5 +159,78 @@ public class ListView extends VerticalLayout {
         dialog.close();
 //        form.setContact(null);
         removeClassName("editing");
+    }
+
+
+    private static ComponentRenderer<ActiveAuctionFormLayout, ActiveAuctionDTO> createAuctionDetailsRenderer() {
+        return new ComponentRenderer<>(ActiveAuctionFormLayout::new, ActiveAuctionFormLayout::setAuction);
+    }
+
+    private static class ActiveAuctionFormLayout extends FormLayout {
+        private final TextField auctionId = new TextField("Auction ID");
+        private final TextField category = new TextField("Category");
+        private final TextField sellerName = new TextField("Seller name");
+        private final TextField sellerEmail = new TextField("Seller e-mail");
+        private final TextField itemQuantity = new TextField("Item quantity");
+        private final TextField description = new TextField("Item description");
+        private final TextField imageUrl = new TextField("Image url");
+        private final TextField currentWinner = new TextField("Current winner contact");
+        private final TextField startingPrice = new TextField("Starting price");
+        private final NumberField newUserBid = new NumberField("Your bid");
+        private final Button placeBid = new Button("Place bid");
+        private final Image image = new Image("images/empty-plant.png", "Alt");
+
+        public ActiveAuctionFormLayout() {
+            configureImage();
+            Stream.of(description, sellerName, sellerEmail, itemQuantity, imageUrl,
+                    currentWinner, startingPrice, auctionId, category).forEach(field -> {
+                field.setReadOnly(true);
+                add(field);
+            });
+            configurePlaceBid();
+
+            setResponsiveSteps(new ResponsiveStep("0", 4));
+            setColspan(description, 4);
+            setColspan(sellerName, 2);
+            setColspan(sellerEmail, 2);
+            setColspan(auctionId, 1);
+            setColspan(category, 1);
+            setColspan(newUserBid, 1);
+            setColspan(placeBid, 1);
+        }
+
+        private void configureImage() {
+            image.addClassName("sample-image");
+            image.setMaxHeight("20rem");
+            image.setMaxWidth("20rem");
+            add(image);
+        }
+
+        private void configurePlaceBid() {
+            // todo: handle min bid
+            placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            placeBid.addClickListener(event -> {
+                System.out.println(event.getButton());
+                System.out.println(newUserBid.getValue());
+            });
+            add(newUserBid);
+            add(placeBid);
+        }
+
+        public void setAuction(ActiveAuctionDTO auction) {
+            auctionId.setValue(fillTextField(String.valueOf(auction.auctionId())));
+            sellerName.setValue(fillTextField(auction.seller()));
+            sellerEmail.setValue(fillTextField(auction.sellerEmail()));
+            itemQuantity.setValue(fillTextField(String.valueOf(auction.itemQuantity())));
+            description.setValue(fillTextField(auction.description()));
+            imageUrl.setValue(fillTextField(auction.imageUrl()));
+            currentWinner.setValue(fillTextField(auction.buyerEmail()));
+            category.setValue(fillTextField(auction.category()));
+            startingPrice.setValue(fillTextField(String.valueOf(auction.startingPrice())));
+        }
+
+        private String fillTextField(String fieldName) {
+            return fieldName != null ? fieldName : "empty";
+        }
     }
 }
