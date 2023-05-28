@@ -29,20 +29,15 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
     public UserDetailsService userDetailsService() {
+        // this can be replaced with @Component on CustomUserDetailsService class
         return new CustomUserDetailsService(userRepository);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         // this bean is defined to not specify password encoding in database password column
-        // must be changed if we want to start hashing passwords
+        // must be changed if we want to start storing hashed passwords
         // * or add {noop} (or other encoding) in CustomUserDetailsService userBuilder object
         // e.g. .password("{noop}" + user.getPassword())
         return NoOpPasswordEncoder.getInstance();

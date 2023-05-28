@@ -68,12 +68,12 @@ public class ActiveAuctionsListView extends VerticalLayout {
         image.setMaxHeight("20rem");
         image.setMaxWidth("20rem");
         HorizontalLayout dialogLayout = new HorizontalLayout(image, new FormLayout());
-//        dialogLayout.setPadding(false);
-//        dialogLayout.setSpacing(false);
-//        dialogLayout.setAlignItems(Alignment.CENTER);
-//        dialogLayout.getStyle()
-//                .set("width", "48rem")
-//                .set("max-width", "100%");
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setAlignItems(Alignment.CENTER);
+        dialogLayout.getStyle()
+                .set("width", "48rem")
+                .set("max-width", "100%");
 
         return dialogLayout;
     }
@@ -187,7 +187,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
                 field.setReadOnly(true);
                 add(field);
             });
-            configurePlaceBid();
+            configurePlaceBidButton();
 
             setResponsiveSteps(new ResponsiveStep("0", 4));
             setColspan(description, 4);
@@ -199,25 +199,8 @@ public class ActiveAuctionsListView extends VerticalLayout {
             setColspan(placeBid, 1);
         }
 
-        private void configureImage() {
-            image.addClassName("sample-image");
-            image.setMaxHeight("20rem");
-            image.setMaxWidth("20rem");
-            add(image);
-        }
-
-        private void configurePlaceBid() {
-            // todo: handle min bid
-            placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            placeBid.addClickListener(event -> {
-                System.out.println(event.getButton());
-                System.out.println(newUserBid.getValue());
-            });
-            add(newUserBid);
-            add(placeBid);
-        }
-
         public void setAuction(ActiveAuctionDTO auction) {
+            configurePlaceBidField(auction);
             auctionId.setValue(fillTextField(String.valueOf(auction.auctionId())));
             sellerName.setValue(fillTextField(auction.seller()));
             sellerEmail.setValue(fillTextField(auction.sellerEmail()));
@@ -227,6 +210,34 @@ public class ActiveAuctionsListView extends VerticalLayout {
             currentWinner.setValue(fillTextField(auction.buyerEmail()));
             category.setValue(fillTextField(auction.category()));
             startingPrice.setValue(fillTextField(String.valueOf(auction.startingPrice())));
+        }
+
+        private void configurePlaceBidButton() {
+            placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            placeBid.addClickListener(event -> {
+                System.out.println(newUserBid.getValue());
+            });
+            add(newUserBid);
+            add(placeBid);
+        }
+
+        private void configurePlaceBidField(ActiveAuctionDTO auction) {
+            double currentBid = auction.currentBid() != null
+                    ? auction.currentBid().doubleValue() + 1
+                    : auction.startingPrice().doubleValue() + 1;
+
+            newUserBid.setMin(currentBid);
+            newUserBid.setStep(0.5);
+            newUserBid.setValue(currentBid);
+            newUserBid.setStepButtonsVisible(true);
+            newUserBid.setErrorMessage("Your bid must be higher than %s".formatted(currentBid));
+        }
+
+        private void configureImage() {
+            image.addClassName("sample-image");
+            image.setMaxHeight("20rem");
+            image.setMaxWidth("20rem");
+            add(image);
         }
 
         private String fillTextField(String fieldName) {
