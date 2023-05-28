@@ -1,4 +1,4 @@
-package com.pwr.auctionsite.views.list;
+package com.pwr.auctionsite.views.form;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;

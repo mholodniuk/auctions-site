@@ -2,10 +2,12 @@ package com.pwr.auctionsite.views.list;
 
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
+import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.views.MainLayout;
+import com.pwr.auctionsite.views.form.ActiveAuctionView;
+import com.pwr.auctionsite.views.form.ContactForm;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -13,7 +15,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -22,7 +23,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Stream;
 
 // Fajne komponenty:
 // - Grid -> do wyświetlenia listy rzeczy
@@ -41,10 +41,10 @@ public class ActiveAuctionsListView extends VerticalLayout {
     TextField filterText = new TextField();
     ContactForm form;
     Dialog dialog = new Dialog();
-    AuctionService service;
+    private final AuctionService auctionService;
 
-    public ActiveAuctionsListView(AuctionService service) {
-        this.service = service;
+    public ActiveAuctionsListView(AuctionService auctionService, SecurityService securityService) {
+        this.auctionService = auctionService;
         addClassName("list-view");
 //        configureForm();
         configureDialog();
@@ -79,7 +79,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(query -> service.findAuctions(query.getOffset(), query.getLimit()).stream());
+        grid.setItems(query -> auctionService.findAuctions(query.getOffset(), query.getLimit()).stream());
     }
 
     private void configureGrid() {
@@ -161,87 +161,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
         removeClassName("editing");
     }
 
-
-    private static ComponentRenderer<ActiveAuctionFormLayout, ActiveAuctionDTO> createAuctionDetailsRenderer() {
-        return new ComponentRenderer<>(ActiveAuctionFormLayout::new, ActiveAuctionFormLayout::setAuction);
-    }
-
-    private static class ActiveAuctionFormLayout extends FormLayout {
-        private final TextField auctionId = new TextField("Auction ID");
-        private final TextField category = new TextField("Category");
-        private final TextField sellerName = new TextField("Seller name");
-        private final TextField sellerEmail = new TextField("Seller e-mail");
-        private final TextField itemQuantity = new TextField("Item quantity");
-        private final TextField description = new TextField("Item description");
-        private final TextField imageUrl = new TextField("Image url");
-        private final TextField currentWinner = new TextField("Current winner contact");
-        private final TextField startingPrice = new TextField("Starting price");
-        private final NumberField newUserBid = new NumberField("Your bid");
-        private final Button placeBid = new Button("Place bid");
-        private final Image image = new Image("images/empty-plant.png", "Alt");
-
-        public ActiveAuctionFormLayout() {
-            configureImage();
-            Stream.of(description, sellerName, sellerEmail, itemQuantity, imageUrl,
-                    currentWinner, startingPrice, auctionId, category).forEach(field -> {
-                field.setReadOnly(true);
-                add(field);
-            });
-            configurePlaceBidButton();
-
-            setResponsiveSteps(new ResponsiveStep("0", 4));
-            setColspan(description, 4);
-            setColspan(sellerName, 2);
-            setColspan(sellerEmail, 2);
-            setColspan(auctionId, 1);
-            setColspan(category, 1);
-            setColspan(newUserBid, 1);
-            setColspan(placeBid, 1);
-        }
-
-        public void setAuction(ActiveAuctionDTO auction) {
-            configurePlaceBidField(auction);
-            auctionId.setValue(fillTextField(String.valueOf(auction.auctionId())));
-            sellerName.setValue(fillTextField(auction.seller()));
-            sellerEmail.setValue(fillTextField(auction.sellerEmail()));
-            itemQuantity.setValue(fillTextField(String.valueOf(auction.itemQuantity())));
-            description.setValue(fillTextField(auction.description()));
-            imageUrl.setValue(fillTextField(auction.imageUrl()));
-            currentWinner.setValue(fillTextField(auction.buyerEmail()));
-            category.setValue(fillTextField(auction.category()));
-            startingPrice.setValue(fillTextField(String.valueOf(auction.startingPrice())));
-        }
-
-        private void configurePlaceBidButton() {
-            placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            placeBid.addClickListener(event -> {
-                System.out.println(newUserBid.getValue());
-            });
-            add(newUserBid);
-            add(placeBid);
-        }
-
-        private void configurePlaceBidField(ActiveAuctionDTO auction) {
-            double currentBid = auction.currentBid() != null
-                    ? auction.currentBid().doubleValue() + 1
-                    : auction.startingPrice().doubleValue() + 1;
-
-            newUserBid.setMin(currentBid);
-            newUserBid.setStep(0.5);
-            newUserBid.setValue(currentBid);
-            newUserBid.setStepButtonsVisible(true);
-            newUserBid.setErrorMessage("Your bid must be higher than %s".formatted(currentBid));
-        }
-
-        private void configureImage() {
-            image.addClassName("sample-image");
-            image.setMaxHeight("20rem");
-            image.setMaxWidth("20rem");
-            add(image);
-        }
-
-        private String fillTextField(String fieldName) {
-            return fieldName != null ? fieldName : "empty";
-        }
+    private ComponentRenderer<ActiveAuctionView, ActiveAuctionDTO> createAuctionDetailsRenderer() {
+        return new ComponentRenderer<>(ActiveAuctionView::new, ActiveAuctionView::setAuction);
     }
 }
