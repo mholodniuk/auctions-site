@@ -1,19 +1,24 @@
 package com.pwr.auctionsite.security;
 
+import com.pwr.auctionsite.data.dao.UserRepository;
 import com.pwr.auctionsite.views.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 @Configuration
+@AllArgsConstructor
 public class SecurityConfig extends VaadinWebSecurity {
+    private final UserRepository userRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -24,18 +29,22 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     @Bean
-    public UserDetailsService users() {
-        UserDetails user = User.builder()
-                .username("user")
-                // password = password with this hash, don't tell anybody :-)
-                .password("{noop}user")
-                .roles("USER")
-                .build();
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password("{noop}admin")
-                .roles("USER", "ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(user, admin);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService(userRepository);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // this bean is defined to not specify password encoding in database password column
+        // must be changed if we want to start hashing passwords
+        // * or add {noop} (or other encoding) in CustomUserDetailsService userBuilder object
+        // e.g. .password("{noop}" + user.getPassword())
+        return NoOpPasswordEncoder.getInstance();
     }
 }
