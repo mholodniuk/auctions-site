@@ -12,7 +12,7 @@ import java.util.List;
 public class AuctionService {
     private final ActiveAuctionDAO activeAuctionDAO;
 
-    public List<ActiveAuctionDTO> findAllAuctions() {
-        return activeAuctionDAO.findAll();
+    public List<ActiveAuctionDTO> findAuctions(int offset, int limit) {
+        return activeAuctionDAO.findAllPaged(offset, limit);
     }
 }

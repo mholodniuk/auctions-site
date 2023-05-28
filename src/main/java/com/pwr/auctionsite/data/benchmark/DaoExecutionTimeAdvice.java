@@ -17,7 +17,7 @@ public class DaoExecutionTimeAdvice {
         long startTime = System.currentTimeMillis();
         Object object = point.proceed();
         long endTime = System.currentTimeMillis();
-        log.info("Time taken for Execution is : " + (endTime-startTime) +"ms. " + "Class Name: "+ point.getSignature().getDeclaringTypeName() +". Method Name: "+ point.getSignature().getName());
+        log.info("Time taken for Execution is: " + (endTime-startTime) +"ms. " + "Class Name: "+ point.getSignature().getDeclaringTypeName() +". Method Name: "+ point.getSignature().getName());
         return object;
     }
 }

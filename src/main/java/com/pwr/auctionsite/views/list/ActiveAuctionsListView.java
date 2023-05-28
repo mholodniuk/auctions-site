@@ -21,7 +21,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
@@ -80,11 +79,12 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(service.findAllAuctions());
+        grid.setItems(query -> service.findAuctions(query.getOffset(), query.getLimit()).stream());
     }
 
     private void configureGrid() {
         grid.addClassNames("contact-grid");
+        grid.setPageSize(50);
         grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn(ActiveAuctionDTO::name).setHeader("Item");
