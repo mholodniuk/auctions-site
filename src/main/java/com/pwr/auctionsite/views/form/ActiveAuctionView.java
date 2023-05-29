@@ -1,13 +1,16 @@
 package com.pwr.auctionsite.views.form;
 
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.service.AuctionService;
+import com.pwr.auctionsite.security.SecurityService;
+import com.pwr.auctionsite.security.model.CustomUser;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.stream.Stream;
@@ -25,15 +28,21 @@ public class ActiveAuctionView extends FormLayout {
     private final NumberField newUserBid = new NumberField("Your bid");
     private final Button placeBid = new Button("Place bid");
     private final Image image = new Image("images/empty-plant.png", "Alt");
+    private final AuctionService auctionService;
+    private CustomUser userDetails;
 
-    public ActiveAuctionView() {
+    public ActiveAuctionView(@Autowired SecurityService securityService,
+                             @Autowired AuctionService auctionService,
+                             ActiveAuctionDTO activeAuction) {
+        setAuction(activeAuction);
         configureImage();
+        this.auctionService = auctionService;
+
         Stream.of(description, sellerName, sellerEmail, itemQuantity, imageUrl,
                 currentWinner, startingPrice, auctionId, category).forEach(field -> {
             field.setReadOnly(true);
             add(field);
         });
-
 
         setResponsiveSteps(new ResponsiveStep("0", 4));
         setColspan(description, 4);
@@ -42,17 +51,14 @@ public class ActiveAuctionView extends FormLayout {
         setColspan(auctionId, 1);
         setColspan(category, 1);
 
-        // bad solution but probably necessary
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        if (securityService.getAuthenticatedUser() != null) {
             configurePlaceBidButton();
             setColspan(newUserBid, 1);
             setColspan(placeBid, 1);
         }
     }
 
-    public void setAuction(ActiveAuctionDTO auction) {
+    private void setAuction(ActiveAuctionDTO auction) {
         configurePlaceBidField(auction);
         auctionId.setValue(fillTextField(String.valueOf(auction.auctionId())));
         sellerName.setValue(fillTextField(auction.seller()));
@@ -68,7 +74,11 @@ public class ActiveAuctionView extends FormLayout {
     private void configurePlaceBidButton() {
         placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         placeBid.addClickListener(event -> {
-            System.out.println(newUserBid.getValue());
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            CustomUser customUser = (CustomUser) authentication.getPrincipal();
+            long userId = customUser.getId();
+
+            System.out.println(userId);
         });
         add(newUserBid);
         add(placeBid);

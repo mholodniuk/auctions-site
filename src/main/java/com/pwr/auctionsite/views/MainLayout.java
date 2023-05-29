@@ -36,7 +36,6 @@ public class MainLayout extends AppLayout {
         logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.MEDIUM);
 
         UserDetails userDetails = securityService.getAuthenticatedUser();
-        System.out.println(userDetails);
 
         var header = new HorizontalLayout(new DrawerToggle(), logo);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);

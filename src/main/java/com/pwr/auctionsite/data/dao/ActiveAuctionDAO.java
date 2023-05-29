@@ -18,17 +18,6 @@ public class ActiveAuctionDAO {
     private final ActiveAuctionRowMapper rowMapper;
 
     @TrackExecutionTime
-    public List<ActiveAuctionDTO> findAll() {
-        var sql = """
-                SELECT *
-                FROM active_auctions_v
-                ORDER BY expiration_date
-                LIMIT 1000
-                """;
-        return template.query(sql, rowMapper);
-    }
-
-    @TrackExecutionTime
     public List<ActiveAuctionDTO> findAllPaged(int offset, int limit) {
         var sql = """
                 SELECT *
@@ -38,5 +27,14 @@ public class ActiveAuctionDAO {
                 OFFSET ?
                 """;
         return template.query(sql, rowMapper, limit, offset);
+    }
+
+    @TrackExecutionTime
+    public void buyNow(int auctionId, int userId) {
+        var sql = """
+                CALL buy_now(?, ?)
+                """;
+
+        template.update(sql, auctionId, userId);
     }
 }

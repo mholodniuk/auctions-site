@@ -24,15 +24,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.time.format.DateTimeFormatter;
 
-// Fajne komponenty:
-// - Grid -> do wyświetlenia listy rzeczy
-// - Grid/Item-details -> do wyświetlenia więcej informacji o rzeczy
-// - Grid/Lazy-loading -> do paginacji między stronami w liście
-// - Grid/Filters-Sorting
-// - Grid/Buffered -> do edytowania wierszy inline
-// - Icons
-
-
 @AnonymousAllowed
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Auctions")
@@ -42,9 +33,11 @@ public class ActiveAuctionsListView extends VerticalLayout {
     ContactForm form;
     Dialog dialog = new Dialog();
     private final AuctionService auctionService;
+    private final SecurityService securityService;
 
     public ActiveAuctionsListView(AuctionService auctionService, SecurityService securityService) {
         this.auctionService = auctionService;
+        this.securityService = securityService;
         addClassName("list-view");
 //        configureForm();
         configureDialog();
@@ -162,6 +155,6 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private ComponentRenderer<ActiveAuctionView, ActiveAuctionDTO> createAuctionDetailsRenderer() {
-        return new ComponentRenderer<>(ActiveAuctionView::new, ActiveAuctionView::setAuction);
+        return new ComponentRenderer<>(auctionDTO -> new ActiveAuctionView(securityService, auctionService, auctionDTO));
     }
 }
