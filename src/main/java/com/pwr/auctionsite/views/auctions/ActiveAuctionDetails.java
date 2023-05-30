@@ -1,21 +1,13 @@
-package com.pwr.auctionsite.views.form;
+package com.pwr.auctionsite.views.auctions;
 
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
-import com.pwr.auctionsite.data.service.AuctionService;
-import com.pwr.auctionsite.security.SecurityService;
-import com.pwr.auctionsite.security.model.CustomUser;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.stream.Stream;
 
-public class ActiveAuctionView extends FormLayout {
+public class ActiveAuctionDetails extends FormLayout {
     private final TextField auctionId = new TextField("Auction ID");
     private final TextField category = new TextField("Category");
     private final TextField sellerName = new TextField("Seller name");
@@ -25,19 +17,11 @@ public class ActiveAuctionView extends FormLayout {
     private final TextField imageUrl = new TextField("Image url");
     private final TextField currentWinner = new TextField("Current winner contact");
     private final TextField startingPrice = new TextField("Starting price");
-    private final NumberField newUserBid = new NumberField("Your bid");
-    private final Button placeBid = new Button("Place bid");
     private final Image image = new Image("images/empty-plant.png", "Alt");
-    private final AuctionService auctionService;
-    private CustomUser userDetails;
 
-    public ActiveAuctionView(@Autowired SecurityService securityService,
-                             @Autowired AuctionService auctionService,
-                             ActiveAuctionDTO activeAuction) {
+    public ActiveAuctionDetails(ActiveAuctionDTO activeAuction) {
         setAuction(activeAuction);
         configureImage();
-        this.auctionService = auctionService;
-
         Stream.of(description, sellerName, sellerEmail, itemQuantity, imageUrl,
                 currentWinner, startingPrice, auctionId, category).forEach(field -> {
             field.setReadOnly(true);
@@ -50,16 +34,9 @@ public class ActiveAuctionView extends FormLayout {
         setColspan(sellerEmail, 2);
         setColspan(auctionId, 1);
         setColspan(category, 1);
-
-        if (securityService.getAuthenticatedUser() != null) {
-            configurePlaceBidButton();
-            setColspan(newUserBid, 1);
-            setColspan(placeBid, 1);
-        }
     }
 
     private void setAuction(ActiveAuctionDTO auction) {
-        configurePlaceBidField(auction);
         auctionId.setValue(fillTextField(String.valueOf(auction.auctionId())));
         sellerName.setValue(fillTextField(auction.seller()));
         sellerEmail.setValue(fillTextField(auction.sellerEmail()));
@@ -69,31 +46,6 @@ public class ActiveAuctionView extends FormLayout {
         currentWinner.setValue(fillTextField(auction.buyerEmail()));
         category.setValue(fillTextField(auction.category()));
         startingPrice.setValue(fillTextField(String.valueOf(auction.startingPrice())));
-    }
-
-    private void configurePlaceBidButton() {
-        placeBid.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        placeBid.addClickListener(event -> {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            CustomUser customUser = (CustomUser) authentication.getPrincipal();
-            long userId = customUser.getId();
-
-            System.out.println(userId);
-        });
-        add(newUserBid);
-        add(placeBid);
-    }
-
-    private void configurePlaceBidField(ActiveAuctionDTO auction) {
-        double currentBid = auction.currentBid() != null
-                ? auction.currentBid().doubleValue() + 1
-                : auction.startingPrice().doubleValue() + 1;
-
-        newUserBid.setMin(currentBid);
-        newUserBid.setStep(0.5);
-        newUserBid.setValue(currentBid);
-        newUserBid.setStepButtonsVisible(true);
-        newUserBid.setErrorMessage("Your bid must be higher than %s".formatted(currentBid));
     }
 
     private void configureImage() {

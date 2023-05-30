@@ -1,7 +1,7 @@
 package com.pwr.auctionsite.views;
 
 import com.pwr.auctionsite.security.SecurityService;
-import com.pwr.auctionsite.views.list.ActiveAuctionsListView;
+import com.pwr.auctionsite.views.auctions.ActiveAuctionsListView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;

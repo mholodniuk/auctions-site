@@ -1,10 +1,16 @@
 package com.pwr.auctionsite.data.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "items")
 public class Item {
     @Id

@@ -14,13 +14,14 @@ public class ActiveAuctionRowMapper implements RowMapper<ActiveAuctionDTO> {
 
     @Override
     public ActiveAuctionDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        int auctionId = rs.getInt("auction_id");
+        Long auctionId = rs.getLong("auction_id");
         Integer currentBidUserId = rs.getInt("current_bid_user_id");
-        int sellerId = rs.getInt("seller_id");
+        Long sellerId = rs.getLong("seller_id");
         BigDecimal buyNowPrice = rs.getBigDecimal("buy_now_price");
         BigDecimal startingPrice = rs.getBigDecimal("starting_price");
         BigDecimal currentBid = rs.getBigDecimal("current_bid");
         LocalDateTime expirationDate = rs.getTimestamp("expiration_date").toLocalDateTime();
+        LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
         Integer itemQuantity = rs.getInt("item_quantity");
         String name = rs.getString("name");
         String description = rs.getString("description");
@@ -32,7 +33,7 @@ public class ActiveAuctionRowMapper implements RowMapper<ActiveAuctionDTO> {
         String buyerEmail = rs.getString("buyer_email");
 
         return new ActiveAuctionDTO(auctionId, currentBidUserId, sellerId, buyNowPrice, startingPrice,
-                currentBid, expirationDate, itemQuantity, name, description, imageUrl, category,
+                currentBid, expirationDate, modifiedAt, itemQuantity, name, description, imageUrl, category,
                 seller, sellerEmail, buyer, buyerEmail);
     }
 }

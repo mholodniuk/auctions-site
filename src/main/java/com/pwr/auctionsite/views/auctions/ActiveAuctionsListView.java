@@ -1,18 +1,16 @@
-package com.pwr.auctionsite.views.list;
+package com.pwr.auctionsite.views.auctions;
 
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.views.MainLayout;
-import com.pwr.auctionsite.views.form.ActiveAuctionView;
-import com.pwr.auctionsite.views.form.ContactForm;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -30,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 public class ActiveAuctionsListView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
     TextField filterText = new TextField();
-    ContactForm form;
+    ActiveAuctionActionsForm activeAuctionActionsForm;
     Dialog dialog = new Dialog();
     private final AuctionService auctionService;
     private final SecurityService securityService;
@@ -38,35 +36,28 @@ public class ActiveAuctionsListView extends VerticalLayout {
     public ActiveAuctionsListView(AuctionService auctionService, SecurityService securityService) {
         this.auctionService = auctionService;
         this.securityService = securityService;
-        addClassName("list-view");
-//        configureForm();
-        configureDialog();
         setSizeFull();
+        addClassName("list-view");
+        configureForm();
+        configureDialog();
         configureGrid();
-
         add(getToolbar(), getContent());
         updateList();
     }
 
     private void configureDialog() {
-        dialog.setHeaderTitle("New auction");
+        dialog.setHeaderTitle("Actions");
         HorizontalLayout dialogLayout = createDialogLayout();
         dialog.add(dialogLayout);
+        dialog.addDialogCloseActionListener(e -> closeEditor());
         add(dialog);
     }
 
     private HorizontalLayout createDialogLayout() {
-        Image image = new Image("images/linux.png", "Alt");
-        image.addClassName("sample-image");
-        image.setMaxHeight("20rem");
-        image.setMaxWidth("20rem");
-        HorizontalLayout dialogLayout = new HorizontalLayout(image, new FormLayout());
+        HorizontalLayout dialogLayout = new HorizontalLayout(activeAuctionActionsForm);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(Alignment.CENTER);
-        dialogLayout.getStyle()
-                .set("width", "48rem")
-                .set("max-width", "100%");
 
         return dialogLayout;
     }
@@ -83,12 +74,31 @@ public class ActiveAuctionsListView extends VerticalLayout {
         grid.addColumn(ActiveAuctionDTO::name).setHeader("Item");
         grid.addColumn(ActiveAuctionDTO::category).setHeader("Category");
         grid.addColumn(ActiveAuctionDTO::buyer).setHeader("Current Winner");
-        grid.addColumn(ActiveAuctionDTO::currentBid).setHeader("Current Bid");
-        grid.addColumn(ActiveAuctionDTO::buyNowPrice).setHeader("Buy Now Price");
+        grid.addColumn(ActiveAuctionDTO::currentBid).setHeader("Current Bid").setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(ActiveAuctionDTO::buyNowPrice).setHeader("Buy Now Price").setTextAlign(ColumnTextAlign.END);
         grid.addColumn(auction -> auction.expirationDate().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
                 .setHeader("Expiration date");
+        grid.addColumn(auction -> auction.modifiedAt().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
+                .setHeader("Last modification");
+        grid.addComponentColumn(this::createActionButton).setTextAlign(ColumnTextAlign.CENTER);
         grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
-//        grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
+    }
+
+    private void configureForm() {
+        activeAuctionActionsForm = new ActiveAuctionActionsForm(auctionService, securityService);
+        activeAuctionActionsForm.setSizeFull();
+    }
+
+    private Button createActionButton(ActiveAuctionDTO auction) {
+        var actionButton = new Button();
+        actionButton.setIcon(new Icon("vaadin", "ellipsis-dots-v"));
+        actionButton.setEnabled(securityService.getAuthenticatedUser() != null);
+        actionButton.setMaxHeight("2rem");
+        actionButton.addClickListener(event -> {
+            activeAuctionActionsForm.setAuction(auction);
+            dialog.open();
+        });
+        return actionButton;
     }
 
     private Component getContent() {
@@ -98,63 +108,26 @@ public class ActiveAuctionsListView extends VerticalLayout {
         return content;
     }
 
-//    private void configureForm() {
-//        form = new ContactForm(service.findAllCompanies(), service.findAllStatuses());
-//        form.setWidth("32em");
-//        form.setVisible(true);
-//        form.addSaveListener(this::saveContact);
-//        form.addDeleteListener(this::deleteContact);
-//        form.addCloseListener(e -> closeEditor());
-//    }
-
-//    private void saveContact(ContactForm.SaveEvent event) {
-//        service.saveContact(event.getContact());
-//        updateList();
-//        closeEditor();
-//    }
-//
-//    private void deleteContact(ContactForm.DeleteEvent event) {
-//        service.deleteContact(event.getContact());
-//        updateList();
-//        closeEditor();
-//    }
-
     private HorizontalLayout getToolbar() {
         filterText.setPlaceholder("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addContactButton = new Button("Add contact");
-//        addContactButton.addClickListener(click -> addContact());
+        Button queryButton = new Button("Search");
 
-        var toolbar = new HorizontalLayout(filterText, addContactButton);
+        var toolbar = new HorizontalLayout(filterText, queryButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
 
-//    private void addContact() {
-//        grid.asSingleSelect().clear();
-//        editContact(new Contact());
-//    }
-//
-//    private void editContact(Contact contact) {
-//        if (contact == null) {
-//            closeEditor();
-//        } else {
-//            form.setContact(contact);
-//            addClassName("editing");
-//            dialog.open();
-//        }
-//    }
-
     private void closeEditor() {
-        dialog.close();
-//        form.setContact(null);
         removeClassName("editing");
+        dialog.close();
+        updateList();
     }
 
-    private ComponentRenderer<ActiveAuctionView, ActiveAuctionDTO> createAuctionDetailsRenderer() {
-        return new ComponentRenderer<>(auctionDTO -> new ActiveAuctionView(securityService, auctionService, auctionDTO));
+    private ComponentRenderer<ActiveAuctionDetails, ActiveAuctionDTO> createAuctionDetailsRenderer() {
+        return new ComponentRenderer<>(ActiveAuctionDetails::new);
     }
 }

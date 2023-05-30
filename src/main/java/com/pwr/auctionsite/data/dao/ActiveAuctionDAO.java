@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class ActiveAuctionDAO {
         var sql = """
                 SELECT *
                 FROM active_auctions_v
-                ORDER BY expiration_date
+                ORDER BY modified_at DESC
                 LIMIT ?
                 OFFSET ?
                 """;
@@ -30,11 +31,18 @@ public class ActiveAuctionDAO {
     }
 
     @TrackExecutionTime
-    public void buyNow(int auctionId, int userId) {
+    public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
+        var sql = """
+                CALL place_bid(?, ?, ?)
+                """;
+        template.update(sql, auctionId, userId, bidValue);
+    }
+
+    @TrackExecutionTime
+    public void buyNow(Long auctionId, Long userId) {
         var sql = """
                 CALL buy_now(?, ?)
                 """;
-
         template.update(sql, auctionId, userId);
     }
 }
