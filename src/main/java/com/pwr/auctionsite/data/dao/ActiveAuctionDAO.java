@@ -31,6 +31,26 @@ public class ActiveAuctionDAO {
     }
 
     @TrackExecutionTime
+    public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {
+        var sql = """
+                SELECT
+                	*
+                FROM
+                	active_auctions_v aav
+                WHERE
+                    aav.auction_id IN (SELECT auction_id FROM watchlist WHERE relation_type = ? AND user_id = ?)
+                ORDER BY modified_at DESC
+                LIMIT ?
+                OFFSET ?
+                """;
+
+        var result = template.query(sql, rowMapper, relationType, userId, limit, offset);
+        System.out.println(result);
+
+        return result;
+    }
+
+    @TrackExecutionTime
     public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
         var sql = """
                 CALL place_bid(?, ?, ?)
@@ -44,5 +64,13 @@ public class ActiveAuctionDAO {
                 CALL buy_now(?, ?)
                 """;
         template.update(sql, auctionId, userId);
+    }
+
+    @TrackExecutionTime
+    public void addAuctionToWatchlist(Long userId, Long auctionId, String relation) {
+        var sql = """
+                CALL add_auction_to_watchlist(?, ?, ?)
+                """;
+        template.update(sql, userId, auctionId, relation);
     }
 }

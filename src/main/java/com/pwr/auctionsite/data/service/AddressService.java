@@ -7,7 +7,6 @@ import com.pwr.auctionsite.data.entity.ShippingAddress;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AddressService {
     private final ShippingAddressRepository addressRepository;
 
-    @Transactional
     @TrackExecutionTime
     public ShippingAddress store(NewAddressDTO addressDTO) {
         var address = new ShippingAddress();

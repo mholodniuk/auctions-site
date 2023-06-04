@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 public class ActiveAuctionActionsForm extends FormLayout {
     private final NumberField bidField = new NumberField("Your bid");
     private final Button placeBidButton = new Button("Place bid");
+    private final Button addToWatchlistButton = new Button("Add to watchlist");
     private final Button buyNowButton = new Button();
     private ActiveAuctionDTO auction;
     private final AuctionService auctionService;
@@ -29,6 +30,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
         configurePlaceBidField();
         configurePlaceBidButton();
         configureBuyNowButton();
+        configureAddToWatchlistButton();
         setActive(true);
     }
 
@@ -69,6 +71,16 @@ public class ActiveAuctionActionsForm extends FormLayout {
         });
         add(placeBidButton);
     }
+
+    private void configureAddToWatchlistButton() {
+        addToWatchlistButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addToWatchlistButton.addClickListener(event -> {
+            var user = (CustomUser) securityService.getAuthenticatedUser();
+            auctionService.addAuctionToWatchlist(user.getId(), auction.auctionId(), "FOLLOWING");
+        });
+        add(addToWatchlistButton);
+    }
+
 
     private void setActive(boolean isActive) {
         placeBidButton.setEnabled(isActive);

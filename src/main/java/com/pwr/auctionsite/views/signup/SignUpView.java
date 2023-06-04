@@ -20,10 +20,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
-enum Step {
-    ADDRESS, ACCOUNT
-}
-
 @Route("sign-up")
 @PageTitle("Create account")
 @AnonymousAllowed
@@ -130,5 +126,9 @@ public class SignUpView extends VerticalLayout {
             state = Step.ADDRESS;
             tabs.setSelectedTab(createAddressTab);
         }
+    }
+
+    enum Step {
+        ADDRESS, ACCOUNT
     }
 }

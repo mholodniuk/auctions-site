@@ -22,6 +22,8 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.time.format.DateTimeFormatter;
 
+// todo: nie działa do końca dodawania aukcji do obserwowanych
+
 @AnonymousAllowed
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Auctions")
@@ -33,7 +35,8 @@ public class ActiveAuctionsListView extends VerticalLayout {
     private final AuctionService auctionService;
     private final SecurityService securityService;
 
-    public ActiveAuctionsListView(AuctionService auctionService, SecurityService securityService) {
+    public ActiveAuctionsListView(AuctionService auctionService,
+                                  SecurityService securityService) {
         this.auctionService = auctionService;
         this.securityService = securityService;
         setSizeFull();

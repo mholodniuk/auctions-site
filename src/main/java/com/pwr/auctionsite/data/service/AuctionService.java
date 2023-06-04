@@ -20,6 +20,11 @@ public class AuctionService {
         return activeAuctionDAO.findAllPaged(offset, limit);
     }
 
+    public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {
+        log.info("getting my auctions");
+        return activeAuctionDAO.findMyAuctions(offset, limit, userId, relationType);
+    }
+
     public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
         log.info("placing bid: %s to auction: %s by user %s".formatted(bidValue, auctionId, userId));
         activeAuctionDAO.placeBid(auctionId, userId, bidValue);
@@ -28,5 +33,10 @@ public class AuctionService {
     public void buyNow(Long auctionId, Long userId) {
         log.info("auction: %s bought by user %s".formatted(auctionId, userId));
         activeAuctionDAO.buyNow(auctionId, userId);
+    }
+
+    public void addAuctionToWatchlist(Long userId, Long auctionId, String relation) {
+        log.info("adding: %s auction to following of %s".formatted(auctionId, userId));
+        activeAuctionDAO.addAuctionToWatchlist(userId, auctionId, relation);
     }
 }
