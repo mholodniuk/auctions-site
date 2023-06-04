@@ -1,13 +1,11 @@
 package com.pwr.auctionsite.security;
 
 import com.pwr.auctionsite.data.dao.UserRepository;
-import com.pwr.auctionsite.views.LoginView;
+import com.pwr.auctionsite.views.login.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;

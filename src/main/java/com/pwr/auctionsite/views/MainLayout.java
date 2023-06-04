@@ -1,6 +1,7 @@
 package com.pwr.auctionsite.views;
 
 import com.pwr.auctionsite.security.SecurityService;
+import com.pwr.auctionsite.views.account.AccountView;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionsListView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -53,8 +54,11 @@ public class MainLayout extends AppLayout {
             header.add(account, logout);
         } else {
             Button login = new Button("Log in", e -> UI.getCurrent().navigate("login"));
+            Button signUp = new Button("Sign up", e -> UI.getCurrent().navigate("sign-up"));
+
             login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            header.add(login);
+            signUp.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+            header.add(login, signUp);
         }
         addToNavbar(header);
     }
@@ -68,9 +72,9 @@ public class MainLayout extends AppLayout {
         if (authenticatedUser != null) {
             var isAdmin = authenticatedUser.getAuthorities()
                     .stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
-            if (isAdmin) {
-                availableRoutes.add(new RouterLink("Dashboard", DashboardView.class));
-            }
+//            if (isAdmin) {
+//                availableRoutes.add(new RouterLink("Dashboard", noop.class));
+//            }
             var acc = new RouterLink("My account", AccountView.class);
             acc.setVisible(false);
             availableRoutes.add(acc);

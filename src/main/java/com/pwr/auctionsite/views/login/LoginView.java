@@ -1,6 +1,5 @@
-package com.pwr.auctionsite.views;
+package com.pwr.auctionsite.views.login;
 
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -9,10 +8,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-// https://vaadin.com/blog/create-a-registration-form-in-pure-java
-// registration view
 @Route("login")
-@PageTitle("Login | Vaadin CRM")
+@PageTitle("Login")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     private final LoginForm login = new LoginForm();

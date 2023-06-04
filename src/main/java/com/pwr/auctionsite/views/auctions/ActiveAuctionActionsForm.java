@@ -37,6 +37,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
         buyNowButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buyNowButton.addClickListener(event -> {
             // todo: it runs twice after first click ???
+            System.out.println("BUY NOY BUY NOW");
             var user = (CustomUser) securityService.getAuthenticatedUser();
             auctionService.buyNow(auction.auctionId(), user.getId());
             setActive(false);
@@ -61,6 +62,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
         placeBidButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         placeBidButton.addClickListener(event -> {
             // todo: it runs twice after first click ???
+            System.out.println("BID BID BID");
             var user = (CustomUser) securityService.getAuthenticatedUser();
             auctionService.placeBid(auction.auctionId(), user.getId(), BigDecimal.valueOf(bidField.getValue()));
             setActive(false);
