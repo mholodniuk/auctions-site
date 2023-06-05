@@ -1,7 +1,9 @@
 package com.pwr.auctionsite.data.service;
 
 import com.pwr.auctionsite.data.dao.ActiveAuctionDAO;
+import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.entity.ItemCategory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,15 @@ import java.util.List;
 @AllArgsConstructor
 public class AuctionService {
     private final ActiveAuctionDAO activeAuctionDAO;
+    private final ItemCategoryRepository itemCategoryRepository;
 
-    public List<ActiveAuctionDTO> findAuctions(int offset, int limit) {
+    public List<String> findAllCategories() {
+        return itemCategoryRepository.findAll().stream().map(ItemCategory::getName).toList();
+    }
+
+    public List<ActiveAuctionDTO> findAuctions(String searchString, String category, int offset, int limit) {
         log.info("getting new auctions");
-        return activeAuctionDAO.findAllPaged(offset, limit);
+        return activeAuctionDAO.findAllPaged(searchString, category, offset, limit);
     }
 
     public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {

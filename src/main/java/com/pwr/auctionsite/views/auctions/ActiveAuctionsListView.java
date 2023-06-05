@@ -6,6 +6,7 @@ import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -29,6 +30,8 @@ import java.time.format.DateTimeFormatter;
 @PageTitle("Auctions")
 public class ActiveAuctionsListView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
+    private final ComboBox<String> categories = new ComboBox<>();
+
     TextField filterText = new TextField();
     ActiveAuctionActionsForm activeAuctionActionsForm;
     Dialog dialog = new Dialog();
@@ -66,7 +69,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(query -> auctionService.findAuctions(query.getOffset(), query.getLimit()).stream());
+        grid.setItems(query -> auctionService.findAuctions(filterText.getValue(), categories.getValue(), query.getOffset(), query.getLimit()).stream());
     }
 
     private void configureGrid() {
@@ -112,14 +115,18 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private HorizontalLayout getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setPlaceholder("Search for...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateList());
+
+        categories.setPlaceholder("Category");
+        filterText.setClearButtonVisible(true);
+        categories.setItems(auctionService.findAllCategories());
 
         Button queryButton = new Button("Search");
+        queryButton.addClickListener(e -> updateList());
 
-        var toolbar = new HorizontalLayout(filterText, queryButton);
+        var toolbar = new HorizontalLayout(filterText, categories, queryButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
