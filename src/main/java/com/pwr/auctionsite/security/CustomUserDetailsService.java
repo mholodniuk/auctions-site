@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getUsername(),
                 user.getPassword(),
                 user.isBlocked(),
-                AuthorityUtils.createAuthorityList(user.getRole().name()),
+                AuthorityUtils.createAuthorityList("ROLE_" + user.getRole().name()),
                 user.getId());
     }
 }
