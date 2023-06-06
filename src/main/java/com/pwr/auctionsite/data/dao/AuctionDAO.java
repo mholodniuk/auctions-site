@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -84,31 +83,5 @@ public class AuctionDAO {
                 """;
 
         return namedTemplate.query(sql, params, finishedAuctionRowMapper);
-    }
-
-
-    // move methods below to service
-    @TrackExecutionTime
-    public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
-        var sql = """
-                CALL place_bid(?, ?, ?)
-                """;
-        template.update(sql, auctionId, userId, bidValue);
-    }
-
-    @TrackExecutionTime
-    public void buyNow(Long auctionId, Long userId) {
-        var sql = """
-                CALL buy_now(?, ?)
-                """;
-        template.update(sql, auctionId, userId);
-    }
-
-    @TrackExecutionTime
-    public void addAuctionToWatchlist(Long userId, Long auctionId, String relation) {
-        var sql = """
-                CALL add_auction_to_watchlist(?, ?, ?)
-                """;
-        template.update(sql, userId, auctionId, relation);
     }
 }

@@ -1,12 +1,14 @@
 package com.pwr.auctionsite.data.service;
 
 import com.pwr.auctionsite.data.dao.AuctionDAO;
+import com.pwr.auctionsite.data.dao.AuctionRepository;
 import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.entity.ItemCategory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +18,9 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class AuctionService {
+    private final AuctionRepository auctionRepository;
     private final AuctionDAO auctionDAO;
+    private final JdbcTemplate template;
     private final ItemCategoryRepository itemCategoryRepository;
 
     public List<String> findAllCategories() {
@@ -39,17 +43,30 @@ public class AuctionService {
     }
 
     public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
-        log.info("placing bid: %s to auction: %s by user %s".formatted(bidValue, auctionId, userId));
-        auctionDAO.placeBid(auctionId, userId, bidValue);
+        var sql = """
+                CALL place_bid(?, ?, ?)
+                """;
+        template.update(sql, auctionId, userId, bidValue);
+    }
+
+    public void moveAuctionToFinished(Long auctionId, BigDecimal bidValue) {
+        var sql = """
+                CALL move_auction_to_finished(?, ?)
+                """;
+        template.update(sql, auctionId, bidValue);
     }
 
     public void buyNow(Long auctionId, Long userId) {
-        log.info("auction: %s bought by user %s".formatted(auctionId, userId));
-        auctionDAO.buyNow(auctionId, userId);
+        var sql = """
+                CALL buy_now(?, ?)
+                """;
+        template.update(sql, auctionId, userId);
     }
 
     public void addAuctionToWatchlist(Long userId, Long auctionId, String relation) {
-        log.info("adding: %s auction to following of %s".formatted(auctionId, userId));
-        auctionDAO.addAuctionToWatchlist(userId, auctionId, relation);
+        var sql = """
+                CALL add_auction_to_watchlist(?, ?, ?)
+                """;
+        template.update(sql, userId, auctionId, relation);
     }
 }

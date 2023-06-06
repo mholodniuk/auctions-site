@@ -15,6 +15,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
     private final NumberField bidField = new NumberField("Your bid");
     private final Button placeBidButton = new Button("Place bid");
     private final Button addToWatchlistButton = new Button("Add to watchlist");
+    private final Button deleteAuctionButton = new Button("Move to archive");
     private final Button buyNowButton = new Button();
     private ActiveAuctionDTO auction;
     private final AuctionService auctionService;
@@ -31,6 +32,10 @@ public class ActiveAuctionActionsForm extends FormLayout {
         configurePlaceBidButton();
         configureBuyNowButton();
         configureAddToWatchlistButton();
+        if (securityService.getAuthenticatedUserRole().contains("ADMIN")) {
+            configureDeleteAuctionButton();
+        }
+        setColspan(deleteAuctionButton, 2);
         setActive(true);
     }
 
@@ -82,11 +87,21 @@ public class ActiveAuctionActionsForm extends FormLayout {
         add(addToWatchlistButton);
     }
 
+    private void configureDeleteAuctionButton() {
+        deleteAuctionButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteAuctionButton.addClickListener(event -> {
+            auctionService.moveAuctionToFinished(auction.auctionId(), auction.currentBid());
+            setActive(false);
+        });
+        add(deleteAuctionButton);
+    }
 
-    private void setActive(boolean isActive) {
-        placeBidButton.setEnabled(isActive);
-        buyNowButton.setEnabled(isActive);
-        bidField.setEnabled(isActive);
-        addToWatchlistButton.setEnabled(isActive);
+
+    private void setActive(boolean enabled) {
+        placeBidButton.setEnabled(enabled);
+        buyNowButton.setEnabled(enabled);
+        bidField.setEnabled(enabled);
+        addToWatchlistButton.setEnabled(enabled);
+        deleteAuctionButton.setEnabled(enabled);
     }
 }
