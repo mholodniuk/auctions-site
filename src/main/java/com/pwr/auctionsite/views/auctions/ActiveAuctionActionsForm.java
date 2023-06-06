@@ -77,6 +77,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
         addToWatchlistButton.addClickListener(event -> {
             var user = (CustomUser) securityService.getAuthenticatedUser();
             auctionService.addAuctionToWatchlist(user.getId(), auction.auctionId(), "FOLLOWING");
+            setActive(false);
         });
         add(addToWatchlistButton);
     }
@@ -86,5 +87,6 @@ public class ActiveAuctionActionsForm extends FormLayout {
         placeBidButton.setEnabled(isActive);
         buyNowButton.setEnabled(isActive);
         bidField.setEnabled(isActive);
+        addToWatchlistButton.setEnabled(isActive);
     }
 }

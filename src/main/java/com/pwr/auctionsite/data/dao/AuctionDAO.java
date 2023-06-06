@@ -2,7 +2,9 @@ package com.pwr.auctionsite.data.dao;
 
 import com.pwr.auctionsite.data.benchmark.TrackExecutionTime;
 import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.mapper.ActiveAuctionRowMapper;
+import com.pwr.auctionsite.data.mapper.FinishedAuctionRowMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,11 +18,11 @@ import java.util.List;
 @Slf4j
 @Repository
 @AllArgsConstructor
-public class ActiveAuctionDAO {
+public class AuctionDAO {
     private final JdbcTemplate template;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    private final ActiveAuctionRowMapper rowMapper;
+    private final NamedParameterJdbcTemplate namedTemplate;
+    private final ActiveAuctionRowMapper activeAuctionRowMapper;
+    private final FinishedAuctionRowMapper finishedAuctionRowMapper;
 
     @TrackExecutionTime
     public List<ActiveAuctionDTO> findAllPaged(String filter, String category, int offset, int limit) {
@@ -42,7 +44,7 @@ public class ActiveAuctionDAO {
                 OFFSET :offset
                 """;
 
-        return namedParameterJdbcTemplate.query(sql, params, rowMapper);
+        return namedTemplate.query(sql, params, activeAuctionRowMapper);
     }
 
     @TrackExecutionTime
@@ -60,12 +62,26 @@ public class ActiveAuctionDAO {
                 OFFSET ?
                 """;
 
-        var result = template.query(sql, rowMapper, relationType, userId, limit, offset);
-        System.out.println(result);
-
-        return result;
+        return template.query(sql, activeAuctionRowMapper, relationType, userId, limit, offset);
     }
 
+
+    // todo: if finished auction winner is null -> bid is also null
+    @TrackExecutionTime
+    public List<FinishedAuctionDTO> findArchivedAuctions(int offset, int limit) {
+        var sql = """
+                SELECT *
+                FROM finished_auctions_v
+                ORDER BY finished_at DESC
+                LIMIT ?
+                OFFSET ?
+                """;
+
+        return template.query(sql, finishedAuctionRowMapper, limit, offset);
+    }
+
+
+    // move methods below to service
     @TrackExecutionTime
     public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
         var sql = """

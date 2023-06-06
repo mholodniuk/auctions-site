@@ -4,6 +4,7 @@ import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.views.account.AccountView;
 import com.pwr.auctionsite.views.account.MyAuctionsView;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionsListView;
+import com.pwr.auctionsite.views.auctions.ArchivedAuctionsListView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -72,6 +73,7 @@ public class MainLayout extends AppLayout {
 
         if (authenticatedUser != null) {
             availableRoutes.add(new RouterLink("My auctions", MyAuctionsView.class));
+            availableRoutes.add(new RouterLink("Archive", ArchivedAuctionsListView.class));
 
             var isAdmin = authenticatedUser.getAuthorities()
                     .stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
