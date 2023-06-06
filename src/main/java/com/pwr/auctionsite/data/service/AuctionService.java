@@ -43,6 +43,8 @@ public class AuctionService {
     }
 
     public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
+        log.info("placing bid %s on auction %s by user %s"
+                .formatted(bidValue.doubleValue(), auctionId, bidValue.doubleValue()));
         var sql = """
                 CALL place_bid(?, ?, ?)
                 """;
@@ -50,6 +52,8 @@ public class AuctionService {
     }
 
     public void moveAuctionToFinished(Long auctionId, BigDecimal bidValue) {
+        log.info("auction: %s moved to finished with price %s"
+                .formatted(auctionId, bidValue.doubleValue()));
         var sql = """
                 CALL move_auction_to_finished(?, ?)
                 """;
@@ -57,6 +61,7 @@ public class AuctionService {
     }
 
     public void buyNow(Long auctionId, Long userId) {
+        log.info("auction: %s bought by user %s".formatted(auctionId, userId));
         var sql = """
                 CALL buy_now(?, ?)
                 """;
@@ -64,6 +69,7 @@ public class AuctionService {
     }
 
     public void addAuctionToWatchlist(Long userId, Long auctionId, String relation) {
+        log.info("adding: %s auction to following of %s".formatted(auctionId, userId));
         var sql = """
                 CALL add_auction_to_watchlist(?, ?, ?)
                 """;
