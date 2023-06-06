@@ -28,9 +28,9 @@ public class AuctionService {
         return auctionDAO.findAllPaged(searchString, category, offset, limit);
     }
 
-    public List<FinishedAuctionDTO> findArchivedAuctions(int offset, int limit) {
+    public List<FinishedAuctionDTO> findArchivedAuctions(Long userId, int offset, int limit) {
         log.info("getting new auctions");
-        return auctionDAO.findArchivedAuctions(offset, limit);
+        return auctionDAO.findArchivedAuctions(userId, offset, limit);
     }
 
     public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {

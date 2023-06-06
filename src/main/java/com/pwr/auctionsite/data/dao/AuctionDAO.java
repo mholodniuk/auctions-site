@@ -68,16 +68,22 @@ public class AuctionDAO {
 
     // todo: if finished auction winner is null -> bid is also null
     @TrackExecutionTime
-    public List<FinishedAuctionDTO> findArchivedAuctions(int offset, int limit) {
+    public List<FinishedAuctionDTO> findArchivedAuctions(Long userId, int offset, int limit) {
+        var params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        params.addValue("offset", offset);
+        params.addValue("limit", limit);
+
         var sql = """
                 SELECT *
                 FROM finished_auctions_v
+                WHERE (:user_id IS NULL OR winner_id = :user_id OR seller_id = :user_id)
                 ORDER BY finished_at DESC
-                LIMIT ?
-                OFFSET ?
+                LIMIT :limit
+                OFFSET :offset
                 """;
 
-        return template.query(sql, finishedAuctionRowMapper, limit, offset);
+        return namedTemplate.query(sql, params, finishedAuctionRowMapper);
     }
 
 
