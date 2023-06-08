@@ -25,6 +25,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Admin panel")
 @Route(value = "admin", layout = MainLayout.class)
@@ -40,7 +41,8 @@ public class AdminView extends HorizontalLayout {
     private final ItemCategoryService itemCategoryService;
     private final UserService userService;
 
-    public AdminView(UserService userService, ItemCategoryService itemCategoryService) {
+    public AdminView(@Autowired UserService userService,
+                     @Autowired ItemCategoryService itemCategoryService) {
         this.itemCategoryService = itemCategoryService;
         this.userService = userService;
         setSizeFull();
@@ -131,6 +133,7 @@ public class AdminView extends HorizontalLayout {
 
     private Button createBlockButton(UserInfoDTO user) {
         var actionButton = new Button(user.isBlocked() ? "enable" : "disable");
+        actionButton.setEnabled(!user.role().equals("ADMIN"));
         actionButton.addThemeVariants(user.isBlocked() ? ButtonVariant.LUMO_SUCCESS : ButtonVariant.LUMO_ERROR);
         actionButton.addClickListener(event -> {
             userService.setUserBlocked(user.id(), !user.isBlocked());
@@ -140,7 +143,8 @@ public class AdminView extends HorizontalLayout {
     }
 
     private Button createDeleteButton(UserInfoDTO user) {
-        var actionButton = new Button("DELETE");
+        var actionButton = new Button("Delete");
+        actionButton.setEnabled(!user.role().equals("ADMIN"));
         actionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         actionButton.addClickListener(event -> {
             userService.deleteById(user.id());
