@@ -1,16 +1,19 @@
 package com.pwr.auctionsite.views.account;
 
+import com.pwr.auctionsite.data.dto.AuctionDTO;
+import com.pwr.auctionsite.data.dto.ItemDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
-import com.pwr.auctionsite.data.entity.Auction;
 import com.pwr.auctionsite.data.service.AuctionService;
+import com.pwr.auctionsite.data.service.ItemCategoryService;
 import com.pwr.auctionsite.data.service.ItemService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;
 import com.pwr.auctionsite.views.MainLayout;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionDetails;
-import com.pwr.auctionsite.views.auctions.AuctionForm;
 import com.pwr.auctionsite.views.auctions.ItemForm;
+import com.pwr.auctionsite.views.auctions.AuctionForm;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -34,18 +37,24 @@ public class MyAuctionsView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
     private final ComboBox<String> relationTypeSelector = new ComboBox<>("Relation");
     private final Button newAuctionButton = new Button("Create new auction");
-    private AuctionForm auctionForm;
+    private final Button saveAuctionButton = new Button("Save auction");
+    private final Button closeDialogButton = new Button("Close");
+
+    private final Dialog dialog = new Dialog();
     private ItemForm itemForm;
-    Dialog dialog = new Dialog();
+    private AuctionForm auctionForm;
     private final CustomUser currentUser;
     private final AuctionService auctionService;
     private final ItemService itemService;
+    private final ItemCategoryService itemCategoryService;
 
     public MyAuctionsView(@Autowired AuctionService auctionService,
                           @Autowired SecurityService securityService,
-                          @Autowired ItemService itemService) {
+                          @Autowired ItemService itemService,
+                          @Autowired ItemCategoryService itemCategoryService) {
         this.itemService = itemService;
         this.auctionService = auctionService;
+        this.itemCategoryService = itemCategoryService;
         currentUser = (CustomUser) securityService.getAuthenticatedUser();
         setSizeFull();
         addClassName("list-view");
@@ -53,6 +62,7 @@ public class MyAuctionsView extends VerticalLayout {
         configureAuctionForm();
         configureItemForm();
         configureDialog();
+        configureActionButtons();
         add(getToolbar(), getContent());
     }
 
@@ -77,6 +87,12 @@ public class MyAuctionsView extends VerticalLayout {
         grid.addColumn(auction -> auction.modifiedAt().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
                 .setHeader("Last modification");
         grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
+        // zamiast tego dodac button na koncu EDIT (tylko kiedy sa ta aukcje typu selling)
+//        grid.asSingleSelect().addValueChangeListener(event -> {
+//            var auction = auctionService.findById(event.getValue().auctionId());
+//            var item = itemService.findById(auction.getItemId());
+//            editAuction(auction, item);
+//        });
     }
 
 
@@ -100,30 +116,33 @@ public class MyAuctionsView extends VerticalLayout {
 
     private void addAuction() {
         grid.asSingleSelect().clear();
-        editAuction(new Auction());
+        editAuction(new AuctionDTO(), new ItemDTO());
     }
 
-    private void editAuction(Auction auction) {
-        if (auction == null) {
-            closeEditor();
-        } else {
-            auctionForm.setContact(auction);
-            addClassName("editing");
-            dialog.open();
-        }
+    private void editAuction(AuctionDTO auction, ItemDTO item) {
+        itemForm.setItemDto(null);
+        auctionForm.setAuctionDto(null);
+        dialog.open();
+//        if (auction == null) {
+//            closeEditor();
+//        } else {
+//            itemForm.setItemDto(item);
+//            auctionForm.setAuctionDto(auction);
+//            addClassName("editing");
+//            dialog.open();
+//        }
     }
 
     private void closeEditor() {
         dialog.close();
-        auctionForm.setContact(null);
+        auctionForm.setAuctionDto(null);
+        itemForm.setItemDto(null);
         removeClassName("editing");
     }
 
     private ComponentRenderer<ActiveAuctionDetails, ActiveAuctionDTO> createAuctionDetailsRenderer() {
         return new ComponentRenderer<>(ActiveAuctionDetails::new);
     }
-
-    // creating/editing auctions
 
     private void configureDialog() {
         dialog.setHeaderTitle("New auction");
@@ -133,39 +152,39 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private VerticalLayout createDialogLayout() {
-        var dialogLayout = new VerticalLayout(auctionForm, itemForm);
+        var dialogLayout = new VerticalLayout(itemForm, auctionForm);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(Alignment.CENTER);
         dialogLayout.getStyle()
                 .set("width", "48rem")
                 .set("max-width", "100%");
+        dialogLayout.add(new HorizontalLayout(saveAuctionButton, closeDialogButton));
 
         return dialogLayout;
     }
 
     private void configureItemForm() {
-        itemForm = new ItemForm();
-    }
-    private void configureAuctionForm() {
-        auctionForm = new AuctionForm(auctionService, itemService);
+        auctionForm = new AuctionForm();
         auctionForm.setWidth("32em");
         auctionForm.setVisible(true);
-        auctionForm.addSaveListener(this::saveAuction);
-//        form.addDeleteListener(this::deleteContact);
-//        form.addCloseListener(e -> closeEditor());
     }
 
-    private void saveAuction(AuctionForm.SaveEvent event) {
-        auctionService.saveAuction(event.getAuction());
-        updateList();
+    private void configureAuctionForm() {
+        itemForm = new ItemForm(itemCategoryService.findAllCategories());
+        itemForm.setWidth("32em");
+        itemForm.setVisible(true);
     }
 
-//    private void deleteContact(AuctionForm.DeleteEvent event) {
-//        service.deleteContact(event.getContact());
-//        updateList();
-//        closeEditor();
-//    }
+    private void configureActionButtons() {
+        saveAuctionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveAuctionButton.addClickListener(event -> {
+            System.out.println(itemForm.getItemCategory().getValue());
+            System.out.println(auctionForm.getExpirationDatePicker().getValue());
+        });
 
+        closeDialogButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        closeDialogButton.addClickListener(click -> closeEditor());
+    }
 
 }

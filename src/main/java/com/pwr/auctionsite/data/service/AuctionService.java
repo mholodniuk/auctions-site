@@ -3,6 +3,7 @@ package com.pwr.auctionsite.data.service;
 import com.pwr.auctionsite.data.dao.AuctionDAO;
 import com.pwr.auctionsite.data.dao.AuctionRepository;
 import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
+import com.pwr.auctionsite.data.dto.AuctionDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.entity.Auction;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,6 +44,18 @@ public class AuctionService {
     public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {
         log.info("getting my auctions");
         return auctionDAO.findMyAuctions(offset, limit, userId, relationType);
+    }
+
+    public AuctionDTO findById(Long auctionId) {
+        var auction = auctionRepository.findById(auctionId).orElseThrow();
+
+        var dto = new AuctionDTO();
+        dto.setItemQuantity(auction.getItemQuantity());
+        dto.setExpirationDate(auction.getExpirationDate());
+        dto.setBuyNowPrice(auction.getBuyNowPrice());
+        dto.setStartingPrice(auction.getStartingPrice());
+
+        return dto;
     }
 
     public void saveAuction(Auction auction) {
