@@ -26,11 +26,15 @@ public class AuctionForm extends FormLayout {
 
     public void setAuctionDto(AuctionDTO auction) {
         if (auction != null) {
+            startingPriceField.setEnabled(false);
+            itemQuantityField.setEnabled(false);
             itemQuantityField.setValue(auction.getItemQuantity().doubleValue());
             startingPriceField.setValue(auction.getStartingPrice());
             buyNowPriceField.setValue(auction.getBuyNowPrice());
             expirationDatePicker.setValue(auction.getExpirationDate());
         } else {
+            startingPriceField.setEnabled(true);
+            itemQuantityField.setEnabled(true);
             itemQuantityField.setValue(itemQuantityField.getEmptyValue());
             startingPriceField.setValue(startingPriceField.getEmptyValue());
             buyNowPriceField.setValue(buyNowPriceField.getEmptyValue());

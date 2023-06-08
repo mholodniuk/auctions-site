@@ -84,8 +84,8 @@ public class MyAuctionsView extends VerticalLayout {
                 .setHeader("Expiration date");
         grid.addColumn(auction -> auction.modifiedAt().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
                 .setHeader("Last modification");
+        grid.addComponentColumn(this::createEditAuctionButton);
         grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
-        grid.addComponentColumn(this::createEditAuctionButton).setTextAlign(ColumnTextAlign.END);
     }
 
 
@@ -110,10 +110,7 @@ public class MyAuctionsView extends VerticalLayout {
     private Button createEditAuctionButton(ActiveAuctionDTO auction) {
         var actionButton = new Button("Edit");
         actionButton.setVisible(relationTypeSelector.getValue().equals("SELLING"));
-        actionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        actionButton.addClickListener(event -> {
-            editAuction(auction);
-        });
+        actionButton.addClickListener(event -> editAuction(auction));
         return actionButton;
     }
 
