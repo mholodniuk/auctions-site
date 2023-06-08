@@ -6,6 +6,7 @@ import com.pwr.auctionsite.data.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -95,8 +96,9 @@ public class SignUpView extends VerticalLayout {
                     saveAccountWithAddress();
                 }
             } catch (ValidationException ve) {
+                // maybe showing some error would be useful
                 System.out.println("FAILED");
-                Notification.show("Validation failed 😥");
+                Notification.show("Validation failed 😥. Make sure to fill all fields correctly");
             } catch (Exception e) {
                 System.out.println("FAILED");
                 Notification.show("Failed to save data 😥");

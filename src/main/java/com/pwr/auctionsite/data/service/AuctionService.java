@@ -50,6 +50,7 @@ public class AuctionService {
         var auction = auctionRepository.findById(auctionId).orElseThrow();
 
         var dto = new AuctionDTO();
+        dto.setItemId(auction.getItem().getId());
         dto.setItemQuantity(auction.getItemQuantity());
         dto.setExpirationDate(auction.getExpirationDate());
         dto.setBuyNowPrice(auction.getBuyNowPrice());

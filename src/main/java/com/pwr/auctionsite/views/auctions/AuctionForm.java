@@ -6,12 +6,10 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.NumberField;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 public class AuctionForm extends FormLayout {
     private final NumberField itemQuantityField = new NumberField("Item quantity");
     private final BigDecimalField startingPriceField = new BigDecimalField("Starting price");
@@ -32,6 +30,11 @@ public class AuctionForm extends FormLayout {
             startingPriceField.setValue(auction.getStartingPrice());
             buyNowPriceField.setValue(auction.getBuyNowPrice());
             expirationDatePicker.setValue(auction.getExpirationDate());
+        } else {
+            itemQuantityField.setValue(itemQuantityField.getEmptyValue());
+            startingPriceField.setValue(startingPriceField.getEmptyValue());
+            buyNowPriceField.setValue(buyNowPriceField.getEmptyValue());
+            expirationDatePicker.setValue(expirationDatePicker.getEmptyValue());
         }
     }
 }

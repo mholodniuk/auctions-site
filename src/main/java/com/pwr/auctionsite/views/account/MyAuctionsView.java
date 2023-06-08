@@ -1,7 +1,5 @@
 package com.pwr.auctionsite.views.account;
 
-import com.pwr.auctionsite.data.dto.AuctionDTO;
-import com.pwr.auctionsite.data.dto.ItemDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.data.service.ItemCategoryService;
@@ -87,12 +85,7 @@ public class MyAuctionsView extends VerticalLayout {
         grid.addColumn(auction -> auction.modifiedAt().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
                 .setHeader("Last modification");
         grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
-        // zamiast tego dodac button na koncu EDIT (tylko kiedy sa ta aukcje typu selling)
-//        grid.asSingleSelect().addValueChangeListener(event -> {
-//            var auction = auctionService.findById(event.getValue().auctionId());
-//            var item = itemService.findById(auction.getItemId());
-//            editAuction(auction, item);
-//        });
+        grid.addComponentColumn(this::createEditAuctionButton).setTextAlign(ColumnTextAlign.END);
     }
 
 
@@ -114,23 +107,34 @@ public class MyAuctionsView extends VerticalLayout {
         return toolbar;
     }
 
-    private void addAuction() {
-        grid.asSingleSelect().clear();
-        editAuction(new AuctionDTO(), new ItemDTO());
+    private Button createEditAuctionButton(ActiveAuctionDTO auction) {
+        var actionButton = new Button("Edit");
+        actionButton.setVisible(relationTypeSelector.getValue().equals("SELLING"));
+        actionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        actionButton.addClickListener(event -> {
+            editAuction(auction);
+        });
+        return actionButton;
     }
 
-    private void editAuction(AuctionDTO auction, ItemDTO item) {
-        itemForm.setItemDto(null);
-        auctionForm.setAuctionDto(null);
-        dialog.open();
-//        if (auction == null) {
-//            closeEditor();
-//        } else {
-//            itemForm.setItemDto(item);
-//            auctionForm.setAuctionDto(auction);
-//            addClassName("editing");
-//            dialog.open();
-//        }
+    private void addAuction() {
+        grid.asSingleSelect().clear();
+        editAuction(null);
+    }
+
+    private void editAuction(ActiveAuctionDTO auction) {
+        if (auction == null) {
+            itemForm.setItemDto(null);
+            auctionForm.setAuctionDto(null);
+            dialog.open();
+        } else {
+            var auctionDto = auctionService.findById(auction.auctionId());
+            var itemDto = itemService.findById(auctionDto.getItemId());
+            itemForm.setItemDto(itemDto);
+            auctionForm.setAuctionDto(auctionDto);
+            addClassName("editing");
+            dialog.open();
+        }
     }
 
     private void closeEditor() {
@@ -179,7 +183,7 @@ public class MyAuctionsView extends VerticalLayout {
     private void configureActionButtons() {
         saveAuctionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveAuctionButton.addClickListener(event -> {
-            System.out.println(itemForm.getItemCategory().getValue());
+            System.out.println(itemForm.getItemCategorySelect().getValue());
             System.out.println(auctionForm.getExpirationDatePicker().getValue());
         });
 
