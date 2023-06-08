@@ -9,6 +9,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -31,9 +32,8 @@ public class SignUpView extends VerticalLayout {
     private TabSheet tabs;
     private final AddressCreationForm addressForm;
     private final AccountCreationForm accountForm;
-    private final Button saveAddressButton = new Button("Save");
-
-    private final Button saveAccountButton = new Button("Create account");
+    private final Button saveButton = new Button("Save");
+    private final Button backButton = new Button("Back to auctions");
     private final BeanValidationBinder<NewAddressDTO> addressBinder;
     private final BeanValidationBinder<NewUserDTO> accountBinder;
 
@@ -50,7 +50,7 @@ public class SignUpView extends VerticalLayout {
         createTabs();
         configureAddressBinder();
         configureAccountBinder();
-        configureAddressButton();
+        configureButtons();
     }
 
     private void createTabs() {
@@ -70,24 +70,38 @@ public class SignUpView extends VerticalLayout {
         add(tabs);
     }
 
-    // todo: create two button
-    private void configureAddressButton() {
-        saveAddressButton.getStyle().set("margin", "0 auto");
-        saveAddressButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveAddressButton.addClickListener(click -> {
+    private void configureButtons() {
+        configureBackButton();
+        configureSaveButton();
+        var buttons = new HorizontalLayout(backButton, saveButton);
+        add(buttons);
+    }
+
+    private void configureBackButton() {
+        backButton.addClickListener(event -> UI.getCurrent().navigate(""));
+        backButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        backButton.getStyle().set("margin", "0 auto");
+    }
+
+    // todo: create two buttons
+    private void configureSaveButton() {
+        saveButton.getStyle().set("margin", "0 auto");
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveButton.addClickListener(click -> {
             try {
                 if (state == Step.ADDRESS) {
                     changeStep(Step.ACCOUNT);
                 } else {
                     saveAccountWithAddress();
                 }
+            } catch (ValidationException ve) {
+                System.out.println("FAILED");
+                Notification.show("Validation failed 😥");
             } catch (Exception e) {
-                changeStep(Step.ADDRESS);
                 System.out.println("FAILED");
                 Notification.show("Failed to save data 😥");
             }
         });
-        add(saveAddressButton);
     }
 
     private void saveAccountWithAddress() throws ValidationException {

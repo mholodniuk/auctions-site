@@ -6,6 +6,7 @@ import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;
 import com.pwr.auctionsite.views.MainLayout;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionDetails;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,14 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-// todo: generify tables
-
 @PageTitle("My auctions")
 @Route(value = "account/auctions", layout = MainLayout.class)
 @PermitAll
 public class MyAuctionsView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
-    private final ComboBox<String> relationType = new ComboBox<>("Relation");
+    private final ComboBox<String> relationTypeSelector = new ComboBox<>("Relation");
+    private final Button newAuctionButton = new Button("Create new auction");
     private final CustomUser currentUser;
     private final AuctionService auctionService;
 
@@ -74,9 +74,14 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private HorizontalLayout getToolbar() {
-        relationType.setItems(List.of("SELLING", "FOLLOWING", "BIDING"));
-        relationType.addValueChangeListener(e -> updateList(e.getValue()));
-        var toolbar = new HorizontalLayout(relationType);
+        relationTypeSelector.setItems(List.of("SELLING", "FOLLOWING", "BIDING"));
+        relationTypeSelector.addValueChangeListener(e -> updateList(e.getValue()));
+        newAuctionButton.addClickListener(event -> {
+            System.out.println(event.getButton());
+        });
+        var toolbar = new HorizontalLayout(relationTypeSelector, newAuctionButton);
+        toolbar.setWidthFull();
+        toolbar.setAlignSelf(Alignment.END, relationTypeSelector, newAuctionButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
