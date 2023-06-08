@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.account;
 
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;

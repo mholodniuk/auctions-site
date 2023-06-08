@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.auctions;
 
-import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;

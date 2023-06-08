@@ -3,9 +3,10 @@ package com.pwr.auctionsite.data.service;
 import com.pwr.auctionsite.data.dao.AuctionDAO;
 import com.pwr.auctionsite.data.dao.AuctionRepository;
 import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
-import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.entity.ItemCategory;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,13 +43,18 @@ public class AuctionService {
         return auctionDAO.findMyAuctions(offset, limit, userId, relationType);
     }
 
-    public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
+    public void placeBidProcedure(Long auctionId, Long userId, BigDecimal bidValue) {
         log.info("placing bid %s on auction %s by user %s"
                 .formatted(bidValue.doubleValue(), auctionId, bidValue.doubleValue()));
         var sql = """
                 CALL place_bid(?, ?, ?)
                 """;
         template.update(sql, auctionId, userId, bidValue);
+    }
+
+    @Transactional
+    public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
+        auctionRepository.placeBid(auctionId, userId, bidValue);
     }
 
     public void moveAuctionToFinished(Long auctionId, BigDecimal bidValue) {

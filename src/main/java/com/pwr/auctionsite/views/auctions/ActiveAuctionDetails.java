@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.auctions;
 
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.textfield.TextField;

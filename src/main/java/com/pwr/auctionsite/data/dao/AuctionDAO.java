@@ -1,8 +1,8 @@
 package com.pwr.auctionsite.data.dao;
 
 import com.pwr.auctionsite.data.benchmark.TrackExecutionTime;
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
-import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.mapper.ActiveAuctionRowMapper;
 import com.pwr.auctionsite.data.mapper.FinishedAuctionRowMapper;
 import lombok.AllArgsConstructor;

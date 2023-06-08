@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.data.mapper;
 
-import com.pwr.auctionsite.data.dto.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 

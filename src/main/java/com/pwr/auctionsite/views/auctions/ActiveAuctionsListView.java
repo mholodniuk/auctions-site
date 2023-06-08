@@ -1,10 +1,11 @@
 package com.pwr.auctionsite.views.auctions;
 
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -16,7 +17,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -117,10 +117,10 @@ public class ActiveAuctionsListView extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         filterText.setPlaceholder("Search for...");
         filterText.setClearButtonVisible(true);
-        filterText.setValueChangeMode(ValueChangeMode.LAZY);
+        filterText.setClearButtonVisible(true);
+        filterText.addKeyPressListener(Key.ENTER, event -> updateList());
 
         categories.setPlaceholder("Category");
-        filterText.setClearButtonVisible(true);
         categories.setItems(auctionService.findAllCategories());
 
         Button queryButton = new Button("Search");

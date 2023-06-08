@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.auctions;
 
-import com.pwr.auctionsite.data.dto.ActiveAuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;
@@ -68,8 +68,6 @@ public class ActiveAuctionActionsForm extends FormLayout {
     private void configurePlaceBidButton() {
         placeBidButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         placeBidButton.addClickListener(event -> {
-            // todo: it runs twice after first click ???
-            System.out.println("BID BID BID");
             var user = (CustomUser) securityService.getAuthenticatedUser();
             auctionService.placeBid(auction.auctionId(), user.getId(), BigDecimal.valueOf(bidField.getValue()));
             setActive(false);
@@ -88,7 +86,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
     }
 
     private void configureDeleteAuctionButton() {
-        deleteAuctionButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteAuctionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         deleteAuctionButton.addClickListener(event -> {
             auctionService.moveAuctionToFinished(auction.auctionId(), auction.currentBid());
             setActive(false);
