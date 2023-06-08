@@ -5,6 +5,7 @@ import com.pwr.auctionsite.data.dao.AuctionRepository;
 import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.entity.Auction;
 import com.pwr.auctionsite.data.entity.ItemCategory;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,10 @@ public class AuctionService {
     public List<ActiveAuctionDTO> findMyAuctions(int offset, int limit, long userId, String relationType) {
         log.info("getting my auctions");
         return auctionDAO.findMyAuctions(offset, limit, userId, relationType);
+    }
+
+    public void saveAuction(Auction auction) {
+        auctionRepository.save(auction);
     }
 
     public void placeBidProcedure(Long auctionId, Long userId, BigDecimal bidValue) {
