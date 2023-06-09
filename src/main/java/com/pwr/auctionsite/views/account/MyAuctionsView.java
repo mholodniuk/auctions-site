@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.account;
 
-import com.pwr.auctionsite.data.dto.AuctionData;
+import com.pwr.auctionsite.data.dto.AuctionDataDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.data.service.ItemCategoryService;
@@ -46,7 +46,7 @@ public class MyAuctionsView extends VerticalLayout {
     private Long currentSelectedAuctionId = null;
     private final AuctionService auctionService;
     private final ItemCategoryService itemCategoryService;
-    private final BeanValidationBinder<AuctionData> auctionBinder = new BeanValidationBinder<>(AuctionData.class);
+    private final BeanValidationBinder<AuctionDataDTO> auctionBinder = new BeanValidationBinder<>(AuctionDataDTO.class);
 
     public MyAuctionsView(@Autowired AuctionService auctionService,
                           @Autowired SecurityService securityService,
@@ -84,7 +84,8 @@ public class MyAuctionsView extends VerticalLayout {
                 .setHeader("Expiration date");
         grid.addColumn(auction -> auction.modifiedAt().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")))
                 .setHeader("Last modification");
-        grid.addComponentColumn(this::createEditAuctionButton);
+        grid.addComponentColumn(this::createEditAuctionButton).setTextAlign(ColumnTextAlign.END);
+        grid.addComponentColumn(this::createDeleteAuctionButton);
         grid.setItemDetailsRenderer(createAuctionDetailsRenderer());
     }
 
@@ -112,6 +113,19 @@ public class MyAuctionsView extends VerticalLayout {
         actionButton.setVisible(relationTypeSelector.getValue().equals("SELLING"));
         actionButton.addClickListener(event -> editAuction(auction));
         return actionButton;
+    }
+
+    private Button createDeleteAuctionButton(ActiveAuctionDTO auction) {
+        var actionButton = new Button("Delete");
+        actionButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        actionButton.setVisible(relationTypeSelector.getValue().equals("SELLING"));
+        actionButton.addClickListener(event -> deleteAuction(auction));
+        return actionButton;
+    }
+
+    private void deleteAuction(ActiveAuctionDTO auction) {
+        auctionService.deleteById(auction.auctionId());
+        updateList();
     }
 
     private void addAuction() {
@@ -189,7 +203,7 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private void saveAuction() throws ValidationException {
-        var auction = new AuctionData();
+        var auction = new AuctionDataDTO();
         auctionBinder.writeBean(auction);
 
         if (currentSelectedAuctionId != null) {
@@ -209,11 +223,11 @@ public class MyAuctionsView extends VerticalLayout {
         auctionBinder.forField(auctionForm.getImageUrlField()).asRequired().bind("imageUrl");
         auctionBinder.forField(auctionForm.getItemQuantityField())
                 .withConverter(new StringToIntegerConverter("Enter a number"))
-                .asRequired().bind(AuctionData::getItemQuantity, AuctionData::setItemQuantity);
+                .asRequired().bind(AuctionDataDTO::getItemQuantity, AuctionDataDTO::setItemQuantity);
         auctionBinder.forField(auctionForm.getStartingPriceField()).asRequired()
-                .bind(AuctionData::getStartingPrice, AuctionData::setStartingPrice);
+                .bind(AuctionDataDTO::getStartingPrice, AuctionDataDTO::setStartingPrice);
         auctionBinder.forField(auctionForm.getBuyNowPriceField()).asRequired()
-                .bind(AuctionData::getBuyNowPrice, AuctionData::setBuyNowPrice);
+                .bind(AuctionDataDTO::getBuyNowPrice, AuctionDataDTO::setBuyNowPrice);
         auctionBinder.forField(auctionForm.getExpirationDatePicker()).asRequired().bind("expirationDate");
     }
 }

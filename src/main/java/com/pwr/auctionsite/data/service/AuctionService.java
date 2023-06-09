@@ -1,7 +1,7 @@
 package com.pwr.auctionsite.data.service;
 
 import com.pwr.auctionsite.data.dao.*;
-import com.pwr.auctionsite.data.dto.AuctionData;
+import com.pwr.auctionsite.data.dto.AuctionDataDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.entity.Auction;
@@ -48,7 +48,7 @@ public class AuctionService {
     }
 
     @Transactional
-    public void saveAuction(AuctionData auctionData, Long userId) {
+    public void saveAuction(AuctionDataDTO auctionData, Long userId) {
         var itemCategory = itemCategoryRepository.findByName(auctionData.getCategory()).orElseThrow();
         var seller = userRepository.findById(userId).orElseThrow();
 
@@ -75,7 +75,7 @@ public class AuctionService {
     }
 
     @Transactional
-    public void editAuction(AuctionData auctionData, Long auctionId) {
+    public void editAuction(AuctionDataDTO auctionData, Long auctionId) {
         var itemCategory = itemCategoryRepository.findByName(auctionData.getCategory()).orElseThrow();
         var auction = auctionRepository.findById(auctionId).orElseThrow();
         var item = itemRepository.findById(auction.getItem().getId()).orElseThrow();
@@ -123,5 +123,9 @@ public class AuctionService {
                 CALL add_auction_to_watchlist(?, ?, ?)
                 """;
         template.update(sql, userId, auctionId, relation);
+    }
+
+    public void deleteById(Long auctionId) {
+        auctionRepository.deleteById(auctionId);
     }
 }
