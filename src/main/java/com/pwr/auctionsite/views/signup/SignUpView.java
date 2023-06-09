@@ -6,7 +6,6 @@ import com.pwr.auctionsite.data.service.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -35,13 +34,11 @@ public class SignUpView extends VerticalLayout {
     private final AccountCreationForm accountForm;
     private final Button saveButton = new Button("Save");
     private final Button backButton = new Button("Back to auctions");
-    private final BeanValidationBinder<NewAddressDTO> addressBinder;
-    private final BeanValidationBinder<NewUserDTO> accountBinder;
+    private final BeanValidationBinder<NewAddressDTO> addressBinder = new BeanValidationBinder<>(NewAddressDTO.class);
+    private final BeanValidationBinder<NewUserDTO> accountBinder = new BeanValidationBinder<>(NewUserDTO.class);
 
     public SignUpView(@Autowired UserService userService) {
         this.userService = userService;
-        this.addressBinder = new BeanValidationBinder<>(NewAddressDTO.class);
-        this.accountBinder = new BeanValidationBinder<>(NewUserDTO.class);
         addressForm = new AddressCreationForm();
         accountForm = new AccountCreationForm();
         state = Step.ADDRESS;

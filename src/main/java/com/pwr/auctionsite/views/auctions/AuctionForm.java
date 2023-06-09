@@ -5,7 +5,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.Getter;
 
@@ -14,7 +13,7 @@ import java.util.List;
 
 @Getter
 public class AuctionForm extends FormLayout {
-    private final NumberField itemQuantityField = new NumberField("Item quantity");
+    private final TextField itemQuantityField = new TextField("Item quantity");
     private final BigDecimalField startingPriceField = new BigDecimalField("Starting price");
     private final BigDecimalField buyNowPriceField = new BigDecimalField("Buy now price");
     private final DateTimePicker expirationDatePicker = new DateTimePicker("Expiration date");
@@ -27,7 +26,7 @@ public class AuctionForm extends FormLayout {
         addClassName("contact-form");
         getStyle().set("margin", "0 auto");
         expirationDatePicker.setMin(LocalDateTime.now());
-        itemQuantityField.setMin(1);
+        itemQuantityField.setMinLength(1);
         itemCategorySelect.setItems(availableCategories);
         add(itemCategorySelect, itemNameField, itemDescriptionField, imageUrlField);
         add(itemQuantityField, startingPriceField, buyNowPriceField, expirationDatePicker);
@@ -37,7 +36,7 @@ public class AuctionForm extends FormLayout {
         if (auction != null) {
             startingPriceField.setEnabled(false);
             itemQuantityField.setEnabled(false);
-            itemQuantityField.setValue(auction.getItemQuantity().doubleValue());
+            itemQuantityField.setValue(auction.getItemQuantity().toString());
             startingPriceField.setValue(auction.getStartingPrice());
             buyNowPriceField.setValue(auction.getBuyNowPrice());
             expirationDatePicker.setValue(auction.getExpirationDate());

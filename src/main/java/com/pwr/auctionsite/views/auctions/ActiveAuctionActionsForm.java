@@ -51,11 +51,13 @@ public class ActiveAuctionActionsForm extends FormLayout {
     }
 
     private void configurePlaceBidField() {
-        bidField.setMin(auction.currentBid().add(BigDecimal.valueOf(0.5)).doubleValue());
-        bidField.setValue(auction.currentBid().add(BigDecimal.ONE).doubleValue());
+        var minBid = auction.currentBid() == null ? auction.startingPrice() :
+                auction.currentBid().add(BigDecimal.valueOf(0.5));
+        bidField.setMin(minBid.doubleValue());
+        bidField.setValue(minBid.add(BigDecimal.ONE).doubleValue());
         bidField.setStep(0.5);
         bidField.setStepButtonsVisible(true);
-        bidField.setErrorMessage("Your bid must be higher than %s".formatted(auction.currentBid().doubleValue()));
+        bidField.setErrorMessage("Your bid must be higher than %s".formatted(minBid.doubleValue()));
         add(bidField);
     }
 

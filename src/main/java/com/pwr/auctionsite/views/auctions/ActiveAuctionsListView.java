@@ -31,10 +31,9 @@ import java.time.format.DateTimeFormatter;
 public class ActiveAuctionsListView extends VerticalLayout {
     Grid<ActiveAuctionDTO> grid = new Grid<>(ActiveAuctionDTO.class, false);
     private final ComboBox<String> categories = new ComboBox<>();
-
-    TextField filterText = new TextField();
-    ActiveAuctionActionsForm activeAuctionActionsForm;
-    Dialog dialog = new Dialog();
+    private final TextField filterText = new TextField();
+    private ActiveAuctionActionsForm activeAuctionActionsForm;
+    private final Dialog auctionDialog = new Dialog();
     private final AuctionService auctionService;
     private final SecurityService securityService;
 
@@ -52,11 +51,11 @@ public class ActiveAuctionsListView extends VerticalLayout {
     }
 
     private void configureDialog() {
-        dialog.setHeaderTitle("Actions");
+        auctionDialog.setHeaderTitle("Actions");
         HorizontalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-        dialog.addDialogCloseActionListener(e -> closeEditor());
-        add(dialog);
+        auctionDialog.add(dialogLayout);
+        auctionDialog.addDialogCloseActionListener(e -> closeEditor());
+        add(auctionDialog);
     }
 
     private HorizontalLayout createDialogLayout() {
@@ -102,7 +101,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
         actionButton.setMaxHeight("2rem");
         actionButton.addClickListener(event -> {
             activeAuctionActionsForm.setAuction(auction);
-            dialog.open();
+            auctionDialog.open();
         });
         return actionButton;
     }
@@ -133,7 +132,7 @@ public class ActiveAuctionsListView extends VerticalLayout {
 
     private void closeEditor() {
         removeClassName("editing");
-        dialog.close();
+        auctionDialog.close();
         updateList();
     }
 

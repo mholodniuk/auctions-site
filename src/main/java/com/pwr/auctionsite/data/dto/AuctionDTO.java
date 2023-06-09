@@ -18,13 +18,13 @@ import java.time.LocalDateTime;
 public class AuctionDTO {
     private Long itemId;
 
-    @Size(message = "item quantity should be bigger than 0")
+    @Size(min = 1, message = "item quantity should be bigger than 0")
     private Integer itemQuantity;
 
-    @Size(message = "starting price should be bigger than 0")
+    @Size(min = 1, message = "starting price should be bigger than 0")
     private BigDecimal startingPrice;
 
-    @Size(message = "buy now price should be bigger than 0")
+    @Size(min = 1, message = "buy now price should be bigger than 0")
     private BigDecimal buyNowPrice;
 
     @Future(message = "Expiration date must be in the future")
@@ -37,7 +37,9 @@ public class AuctionDTO {
     @NotBlank(message = "item category can not be blank")
     private String category;
 
+    @NotBlank(message = "description should not be empty")
     private String description;
 
+    @NotBlank(message = "image url should not be empty")
     private String imageUrl;
 }

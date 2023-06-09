@@ -1,25 +1,29 @@
 package com.pwr.auctionsite.data.service;
 
-import com.pwr.auctionsite.data.dao.AuctionDAO;
-import com.pwr.auctionsite.data.dao.AuctionRepository;
-import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
+import com.pwr.auctionsite.data.dao.*;
 import com.pwr.auctionsite.data.dto.AuctionDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
+import com.pwr.auctionsite.data.entity.Auction;
+import com.pwr.auctionsite.data.entity.Item;
 import com.pwr.auctionsite.data.entity.ItemCategory;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class AuctionService {
+    private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
+    private final ItemRepository itemRepository;
     private final AuctionDAO auctionDAO;
     private final JdbcTemplate template;
     private final ItemCategoryRepository itemCategoryRepository;
@@ -59,6 +63,33 @@ public class AuctionService {
         dto.setImageUrl(auction.getItem().getImageUrl());
 
         return dto;
+    }
+
+    @Transactional
+    public void saveAuction(AuctionDTO auctionDTO, Long userId) {
+        var itemCategory = itemCategoryRepository.findByName(auctionDTO.getCategory()).orElseThrow();
+        var seller = userRepository.findById(userId).orElseThrow();
+
+        var item = Item.builder()
+                .name(auctionDTO.getName())
+                .description(auctionDTO.getDescription())
+                .imageUrl(auctionDTO.getImageUrl())
+                .modifiedAt(LocalDateTime.now())
+                .category(itemCategory)
+                .build();
+
+        itemRepository.save(item);
+
+        var auction = Auction.builder()
+                .itemQuantity(auctionDTO.getItemQuantity())
+                .startingPrice(auctionDTO.getStartingPrice())
+                .buyNowPrice(auctionDTO.getBuyNowPrice())
+                .expirationDate(auctionDTO.getExpirationDate())
+                .seller(seller)
+                .item(item)
+                .build();
+
+        auctionRepository.save(auction);
     }
 
     public void placeBidProcedure(Long auctionId, Long userId, BigDecimal bidValue) {

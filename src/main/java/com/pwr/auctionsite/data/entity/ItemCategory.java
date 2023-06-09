@@ -1,8 +1,12 @@
 package com.pwr.auctionsite.data.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "item_category")
 public class ItemCategory {
     @Id
@@ -11,20 +15,4 @@ public class ItemCategory {
 
     @Column(nullable = false)
     private String name;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

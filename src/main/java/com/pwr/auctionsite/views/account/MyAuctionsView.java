@@ -1,9 +1,9 @@
 package com.pwr.auctionsite.views.account;
 
+import com.pwr.auctionsite.data.dto.AuctionDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.data.service.ItemCategoryService;
-import com.pwr.auctionsite.data.service.ItemService;
 import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;
 import com.pwr.auctionsite.views.MainLayout;
@@ -16,8 +16,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -36,19 +40,16 @@ public class MyAuctionsView extends VerticalLayout {
     private final Button newAuctionButton = new Button("Create new auction");
     private final Button saveAuctionButton = new Button("Save auction");
     private final Button closeDialogButton = new Button("Close");
-
     private final Dialog dialog = new Dialog();
     private AuctionForm auctionForm;
     private final CustomUser currentUser;
     private final AuctionService auctionService;
-    private final ItemService itemService;
     private final ItemCategoryService itemCategoryService;
+    private final BeanValidationBinder<AuctionDTO> auctionBinder = new BeanValidationBinder<>(AuctionDTO.class);
 
     public MyAuctionsView(@Autowired AuctionService auctionService,
                           @Autowired SecurityService securityService,
-                          @Autowired ItemService itemService,
                           @Autowired ItemCategoryService itemCategoryService) {
-        this.itemService = itemService;
         this.auctionService = auctionService;
         this.itemCategoryService = itemCategoryService;
         currentUser = (CustomUser) securityService.getAuthenticatedUser();
@@ -58,6 +59,7 @@ public class MyAuctionsView extends VerticalLayout {
         configureAuctionForm();
         configureDialog();
         configureActionButtons();
+        configureBinder();
         add(getToolbar(), getContent());
     }
 
@@ -139,7 +141,7 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private void configureDialog() {
-        dialog.setHeaderTitle("New auction");
+        dialog.setHeaderTitle("Auction");
         var dialogLayout = createDialogLayout();
         dialog.add(dialogLayout);
         add(dialog);
@@ -167,11 +169,42 @@ public class MyAuctionsView extends VerticalLayout {
     private void configureActionButtons() {
         saveAuctionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveAuctionButton.addClickListener(event -> {
-            System.out.println(auctionForm.getExpirationDatePicker().getValue());
+            try {
+                saveAuction();
+            } catch (ValidationException ve) {
+                System.out.println(ve.getBeanValidationErrors());
+                System.out.println(ve.getFieldValidationErrors());
+                ve.printStackTrace();
+                System.out.println("FAILED");
+                Notification.show("Validation failed 😥. Make sure to fill all fields correctly");
+            } catch (Exception e) {
+                System.out.println("FAILED");
+                Notification.show("Failed to save data 😥");
+            }
         });
 
         closeDialogButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         closeDialogButton.addClickListener(click -> closeEditor());
     }
 
+    private void saveAuction() throws ValidationException {
+        var auction = new AuctionDTO();
+        auctionBinder.writeBean(auction);
+
+        auctionService.saveAuction(auction, currentUser.getId());
+        System.out.println("Stored auction");
+        Notification.show("Auction created");
+    }
+
+    private void configureBinder() {
+        auctionBinder.forField(auctionForm.getItemCategorySelect()).asRequired().bind("category");
+        auctionBinder.forField(auctionForm.getItemNameField()).asRequired().bind("name");
+        auctionBinder.forField(auctionForm.getItemDescriptionField()).asRequired().bind("description");
+        auctionBinder.forField(auctionForm.getImageUrlField()).asRequired().bind("imageUrl");
+        auctionBinder.forField(auctionForm.getItemQuantityField()).withConverter(new StringToIntegerConverter("Enter a number"))
+                .asRequired().bind(AuctionDTO::getItemQuantity, AuctionDTO::setItemQuantity);
+        auctionBinder.forField(auctionForm.getStartingPriceField()).asRequired().bind(AuctionDTO::getStartingPrice, AuctionDTO::setStartingPrice);
+        auctionBinder.forField(auctionForm.getBuyNowPriceField()).asRequired().bind(AuctionDTO::getBuyNowPrice, AuctionDTO::setBuyNowPrice);
+        auctionBinder.forField(auctionForm.getExpirationDatePicker()).asRequired().bind("expirationDate");
+    }
 }

@@ -19,7 +19,7 @@ public class NewUserDTO {
     @Size(min = 8, max = 32, message = "password size should be between 8 and 16")
     private String password;
 
-    @Email
+    @Email(message = "Email format required")
     @NotBlank(message = "email can not be blank")
     @Size(max = 32, message = "email can not exceed 32 characters")
     private String email;
