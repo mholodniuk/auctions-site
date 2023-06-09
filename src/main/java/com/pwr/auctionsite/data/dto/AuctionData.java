@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @NoArgsConstructor
-public class AuctionDTO {
+public class AuctionData {
     private Long itemId;
 
     @Size(min = 1, message = "item quantity should be bigger than 0")

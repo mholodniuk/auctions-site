@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.account;
 
-import com.pwr.auctionsite.data.dto.AuctionDTO;
+import com.pwr.auctionsite.data.dto.AuctionData;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.service.AuctionService;
 import com.pwr.auctionsite.data.service.ItemCategoryService;
@@ -43,9 +43,10 @@ public class MyAuctionsView extends VerticalLayout {
     private final Dialog dialog = new Dialog();
     private AuctionForm auctionForm;
     private final CustomUser currentUser;
+    private Long currentSelectedAuctionId = null;
     private final AuctionService auctionService;
     private final ItemCategoryService itemCategoryService;
-    private final BeanValidationBinder<AuctionDTO> auctionBinder = new BeanValidationBinder<>(AuctionDTO.class);
+    private final BeanValidationBinder<AuctionData> auctionBinder = new BeanValidationBinder<>(AuctionData.class);
 
     public MyAuctionsView(@Autowired AuctionService auctionService,
                           @Autowired SecurityService securityService,
@@ -120,11 +121,11 @@ public class MyAuctionsView extends VerticalLayout {
 
     private void editAuction(ActiveAuctionDTO auction) {
         if (auction == null) {
-            auctionForm.setAuctionDto(null);
+            auctionForm.setNewAuction();
             dialog.open();
         } else {
-            var auctionDto = auctionService.findById(auction.auctionId());
-            auctionForm.setAuctionDto(auctionDto);
+            auctionForm.setActiveAuction(auction);
+            currentSelectedAuctionId = auction.auctionId();
             addClassName("editing");
             dialog.open();
         }
@@ -132,7 +133,8 @@ public class MyAuctionsView extends VerticalLayout {
 
     private void closeEditor() {
         dialog.close();
-        auctionForm.setAuctionDto(null);
+        auctionForm.setNewAuction();
+        updateList();
         removeClassName("editing");
     }
 
@@ -172,12 +174,11 @@ public class MyAuctionsView extends VerticalLayout {
             try {
                 saveAuction();
             } catch (ValidationException ve) {
-                System.out.println(ve.getBeanValidationErrors());
-                System.out.println(ve.getFieldValidationErrors());
                 ve.printStackTrace();
                 System.out.println("FAILED");
                 Notification.show("Validation failed 😥. Make sure to fill all fields correctly");
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println("FAILED");
                 Notification.show("Failed to save data 😥");
             }
@@ -188,12 +189,17 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private void saveAuction() throws ValidationException {
-        var auction = new AuctionDTO();
+        var auction = new AuctionData();
         auctionBinder.writeBean(auction);
 
-        auctionService.saveAuction(auction, currentUser.getId());
-        System.out.println("Stored auction");
+        if (currentSelectedAuctionId != null) {
+            auctionService.editAuction(auction, currentSelectedAuctionId);
+        } else {
+            auctionService.saveAuction(auction, currentUser.getId());
+        }
+
         Notification.show("Auction created");
+        closeEditor();
     }
 
     private void configureBinder() {
@@ -201,10 +207,13 @@ public class MyAuctionsView extends VerticalLayout {
         auctionBinder.forField(auctionForm.getItemNameField()).asRequired().bind("name");
         auctionBinder.forField(auctionForm.getItemDescriptionField()).asRequired().bind("description");
         auctionBinder.forField(auctionForm.getImageUrlField()).asRequired().bind("imageUrl");
-        auctionBinder.forField(auctionForm.getItemQuantityField()).withConverter(new StringToIntegerConverter("Enter a number"))
-                .asRequired().bind(AuctionDTO::getItemQuantity, AuctionDTO::setItemQuantity);
-        auctionBinder.forField(auctionForm.getStartingPriceField()).asRequired().bind(AuctionDTO::getStartingPrice, AuctionDTO::setStartingPrice);
-        auctionBinder.forField(auctionForm.getBuyNowPriceField()).asRequired().bind(AuctionDTO::getBuyNowPrice, AuctionDTO::setBuyNowPrice);
+        auctionBinder.forField(auctionForm.getItemQuantityField())
+                .withConverter(new StringToIntegerConverter("Enter a number"))
+                .asRequired().bind(AuctionData::getItemQuantity, AuctionData::setItemQuantity);
+        auctionBinder.forField(auctionForm.getStartingPriceField()).asRequired()
+                .bind(AuctionData::getStartingPrice, AuctionData::setStartingPrice);
+        auctionBinder.forField(auctionForm.getBuyNowPriceField()).asRequired()
+                .bind(AuctionData::getBuyNowPrice, AuctionData::setBuyNowPrice);
         auctionBinder.forField(auctionForm.getExpirationDatePicker()).asRequired().bind("expirationDate");
     }
 }

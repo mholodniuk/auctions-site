@@ -1,6 +1,6 @@
 package com.pwr.auctionsite.views.auctions;
 
-import com.pwr.auctionsite.data.dto.AuctionDTO;
+import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -32,29 +32,30 @@ public class AuctionForm extends FormLayout {
         add(itemQuantityField, startingPriceField, buyNowPriceField, expirationDatePicker);
     }
 
-    public void setAuctionDto(AuctionDTO auction) {
-        if (auction != null) {
-            startingPriceField.setEnabled(false);
-            itemQuantityField.setEnabled(false);
-            itemQuantityField.setValue(auction.getItemQuantity().toString());
-            startingPriceField.setValue(auction.getStartingPrice());
-            buyNowPriceField.setValue(auction.getBuyNowPrice());
-            expirationDatePicker.setValue(auction.getExpirationDate());
-            itemNameField.setValue(auction.getName());
-            itemDescriptionField.setValue(auction.getDescription());
-            imageUrlField.setValue(auction.getImageUrl());
-            itemCategorySelect.setValue(auction.getCategory());
-        } else {
-            startingPriceField.setEnabled(true);
-            itemQuantityField.setEnabled(true);
-            itemQuantityField.setValue(itemQuantityField.getEmptyValue());
-            startingPriceField.setValue(startingPriceField.getEmptyValue());
-            buyNowPriceField.setValue(buyNowPriceField.getEmptyValue());
-            expirationDatePicker.setValue(expirationDatePicker.getEmptyValue());
-            itemNameField.setValue(itemNameField.getEmptyValue());
-            itemDescriptionField.setValue(itemDescriptionField.getEmptyValue());
-            itemCategorySelect.setValue(itemCategorySelect.getEmptyValue());
-            imageUrlField.setValue(imageUrlField.getEmptyValue());
-        }
+    public void setNewAuction() {
+        startingPriceField.setEnabled(true);
+        itemQuantityField.setEnabled(true);
+        itemQuantityField.setValue(itemQuantityField.getEmptyValue());
+        startingPriceField.setValue(startingPriceField.getEmptyValue());
+        buyNowPriceField.setValue(buyNowPriceField.getEmptyValue());
+        expirationDatePicker.setValue(expirationDatePicker.getEmptyValue());
+        itemNameField.setValue(itemNameField.getEmptyValue());
+        itemDescriptionField.setValue(itemDescriptionField.getEmptyValue());
+        itemCategorySelect.setValue(itemCategorySelect.getEmptyValue());
+        imageUrlField.setValue(imageUrlField.getEmptyValue());
+    }
+
+    public void setActiveAuction(ActiveAuctionDTO auction) {
+        startingPriceField.setEnabled(false);
+        itemQuantityField.setEnabled(false);
+        itemQuantityField.setValue(auction.itemQuantity().toString());
+        startingPriceField.setValue(auction.startingPrice());
+        // so min value needs to be set here on buyNowPriceField
+        buyNowPriceField.setValue(auction.buyNowPrice());
+        expirationDatePicker.setValue(auction.expirationDate());
+        itemNameField.setValue(auction.name());
+        itemDescriptionField.setValue(auction.description());
+        imageUrlField.setValue(auction.imageUrl());
+        itemCategorySelect.setValue(auction.category());
     }
 }

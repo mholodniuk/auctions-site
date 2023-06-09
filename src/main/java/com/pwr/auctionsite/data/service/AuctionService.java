@@ -1,7 +1,7 @@
 package com.pwr.auctionsite.data.service;
 
 import com.pwr.auctionsite.data.dao.*;
-import com.pwr.auctionsite.data.dto.AuctionDTO;
+import com.pwr.auctionsite.data.dto.AuctionData;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.entity.Auction;
@@ -47,33 +47,15 @@ public class AuctionService {
         return auctionDAO.findMyAuctions(offset, limit, userId, relationType);
     }
 
-    public AuctionDTO findById(Long auctionId) {
-        var auction = auctionRepository.findById(auctionId).orElseThrow();
-
-        var dto = new AuctionDTO();
-        dto.setItemId(auction.getItem().getId());
-        dto.setItemQuantity(auction.getItemQuantity());
-        dto.setExpirationDate(auction.getExpirationDate());
-        dto.setBuyNowPrice(auction.getBuyNowPrice());
-        dto.setStartingPrice(auction.getStartingPrice());
-        dto.setName(auction.getItem().getName());
-        dto.setName(auction.getItem().getName());
-        dto.setDescription(auction.getItem().getDescription());
-        dto.setCategory(auction.getItem().getCategory().getName());
-        dto.setImageUrl(auction.getItem().getImageUrl());
-
-        return dto;
-    }
-
     @Transactional
-    public void saveAuction(AuctionDTO auctionDTO, Long userId) {
-        var itemCategory = itemCategoryRepository.findByName(auctionDTO.getCategory()).orElseThrow();
+    public void saveAuction(AuctionData auctionData, Long userId) {
+        var itemCategory = itemCategoryRepository.findByName(auctionData.getCategory()).orElseThrow();
         var seller = userRepository.findById(userId).orElseThrow();
 
         var item = Item.builder()
-                .name(auctionDTO.getName())
-                .description(auctionDTO.getDescription())
-                .imageUrl(auctionDTO.getImageUrl())
+                .name(auctionData.getName())
+                .description(auctionData.getDescription())
+                .imageUrl(auctionData.getImageUrl())
                 .modifiedAt(LocalDateTime.now())
                 .category(itemCategory)
                 .build();
@@ -81,15 +63,32 @@ public class AuctionService {
         itemRepository.save(item);
 
         var auction = Auction.builder()
-                .itemQuantity(auctionDTO.getItemQuantity())
-                .startingPrice(auctionDTO.getStartingPrice())
-                .buyNowPrice(auctionDTO.getBuyNowPrice())
-                .expirationDate(auctionDTO.getExpirationDate())
+                .itemQuantity(auctionData.getItemQuantity())
+                .startingPrice(auctionData.getStartingPrice())
+                .buyNowPrice(auctionData.getBuyNowPrice())
+                .expirationDate(auctionData.getExpirationDate())
                 .seller(seller)
                 .item(item)
                 .build();
 
         auctionRepository.save(auction);
+    }
+
+    @Transactional
+    public void editAuction(AuctionData auctionData, Long auctionId) {
+        var itemCategory = itemCategoryRepository.findByName(auctionData.getCategory()).orElseThrow();
+        var auction = auctionRepository.findById(auctionId).orElseThrow();
+        var item = itemRepository.findById(auction.getItem().getId()).orElseThrow();
+
+        item.setName(auctionData.getName());
+        item.setDescription(auctionData.getDescription());
+        item.setImageUrl(auctionData.getImageUrl());
+        item.setModifiedAt(LocalDateTime.now());
+        item.setCategory(itemCategory);
+
+        auction.setItemQuantity(auction.getItemQuantity());
+        auction.setBuyNowPrice(auctionData.getBuyNowPrice());
+        auction.setExpirationDate(auctionData.getExpirationDate());
     }
 
     public void placeBidProcedure(Long auctionId, Long userId, BigDecimal bidValue) {
