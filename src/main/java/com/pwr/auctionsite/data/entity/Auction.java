@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "auctions")
 public class Auction {
     @Id
-    @NotNull
     @Column(name = "id", nullable = false)
     private long id;
 
@@ -43,11 +41,11 @@ public class Auction {
     @JoinColumn(name = "current_bid_user_id")
     private User currentBidUser;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
 }

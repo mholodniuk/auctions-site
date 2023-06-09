@@ -52,6 +52,11 @@ public class AuctionService {
         dto.setExpirationDate(auction.getExpirationDate());
         dto.setBuyNowPrice(auction.getBuyNowPrice());
         dto.setStartingPrice(auction.getStartingPrice());
+        dto.setName(auction.getItem().getName());
+        dto.setName(auction.getItem().getName());
+        dto.setDescription(auction.getItem().getDescription());
+        dto.setCategory(auction.getItem().getCategory().getName());
+        dto.setImageUrl(auction.getItem().getImageUrl());
 
         return dto;
     }

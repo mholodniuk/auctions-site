@@ -1,6 +1,7 @@
 package com.pwr.auctionsite.data.dto;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,4 +29,15 @@ public class AuctionDTO {
 
     @Future(message = "Expiration date must be in the future")
     private LocalDateTime expirationDate;
+
+    @NotBlank(message = "item name can not be blank")
+    @Size(max = 32, message = "Item name can not exceed 32 characters")
+    private String name;
+
+    @NotBlank(message = "item category can not be blank")
+    private String category;
+
+    private String description;
+
+    private String imageUrl;
 }

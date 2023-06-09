@@ -8,7 +8,6 @@ import com.pwr.auctionsite.security.SecurityService;
 import com.pwr.auctionsite.security.model.CustomUser;
 import com.pwr.auctionsite.views.MainLayout;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionDetails;
-import com.pwr.auctionsite.views.auctions.ItemForm;
 import com.pwr.auctionsite.views.auctions.AuctionForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,7 +38,6 @@ public class MyAuctionsView extends VerticalLayout {
     private final Button closeDialogButton = new Button("Close");
 
     private final Dialog dialog = new Dialog();
-    private ItemForm itemForm;
     private AuctionForm auctionForm;
     private final CustomUser currentUser;
     private final AuctionService auctionService;
@@ -58,7 +56,6 @@ public class MyAuctionsView extends VerticalLayout {
         addClassName("list-view");
         configureGrid();
         configureAuctionForm();
-        configureItemForm();
         configureDialog();
         configureActionButtons();
         add(getToolbar(), getContent());
@@ -121,13 +118,10 @@ public class MyAuctionsView extends VerticalLayout {
 
     private void editAuction(ActiveAuctionDTO auction) {
         if (auction == null) {
-            itemForm.setItemDto(null);
             auctionForm.setAuctionDto(null);
             dialog.open();
         } else {
             var auctionDto = auctionService.findById(auction.auctionId());
-            var itemDto = itemService.findById(auctionDto.getItemId());
-            itemForm.setItemDto(itemDto);
             auctionForm.setAuctionDto(auctionDto);
             addClassName("editing");
             dialog.open();
@@ -137,7 +131,6 @@ public class MyAuctionsView extends VerticalLayout {
     private void closeEditor() {
         dialog.close();
         auctionForm.setAuctionDto(null);
-        itemForm.setItemDto(null);
         removeClassName("editing");
     }
 
@@ -153,7 +146,7 @@ public class MyAuctionsView extends VerticalLayout {
     }
 
     private VerticalLayout createDialogLayout() {
-        var dialogLayout = new VerticalLayout(itemForm, auctionForm);
+        var dialogLayout = new VerticalLayout(auctionForm);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(Alignment.CENTER);
@@ -165,22 +158,15 @@ public class MyAuctionsView extends VerticalLayout {
         return dialogLayout;
     }
 
-    private void configureItemForm() {
-        auctionForm = new AuctionForm();
+    private void configureAuctionForm() {
+        auctionForm = new AuctionForm(itemCategoryService.findAllCategories());
         auctionForm.setWidth("32em");
         auctionForm.setVisible(true);
-    }
-
-    private void configureAuctionForm() {
-        itemForm = new ItemForm(itemCategoryService.findAllCategories());
-        itemForm.setWidth("32em");
-        itemForm.setVisible(true);
     }
 
     private void configureActionButtons() {
         saveAuctionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveAuctionButton.addClickListener(event -> {
-            System.out.println(itemForm.getItemCategorySelect().getValue());
             System.out.println(auctionForm.getExpirationDatePicker().getValue());
         });
 
