@@ -6,9 +6,7 @@ import com.pwr.auctionsite.data.dao.ItemCategoryRepository;
 import com.pwr.auctionsite.data.dto.AuctionDTO;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
-import com.pwr.auctionsite.data.entity.Auction;
 import com.pwr.auctionsite.data.entity.ItemCategory;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -59,10 +56,6 @@ public class AuctionService {
         return dto;
     }
 
-    public void saveAuction(Auction auction) {
-        auctionRepository.save(auction);
-    }
-
     public void placeBidProcedure(Long auctionId, Long userId, BigDecimal bidValue) {
         log.info("placing bid %s on auction %s by user %s"
                 .formatted(bidValue.doubleValue(), auctionId, bidValue.doubleValue()));
@@ -70,11 +63,6 @@ public class AuctionService {
                 CALL place_bid(?, ?, ?)
                 """;
         template.update(sql, auctionId, userId, bidValue);
-    }
-
-    @Transactional
-    public void placeBid(Long auctionId, Long userId, BigDecimal bidValue) {
-        auctionRepository.placeBid(auctionId, userId, bidValue);
     }
 
     public void moveAuctionToFinished(Long auctionId, BigDecimal bidValue) {

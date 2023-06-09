@@ -24,14 +24,14 @@ public class ActiveAuctionActionsForm extends FormLayout {
     public ActiveAuctionActionsForm(AuctionService auctionService, SecurityService securityService) {
         this.auctionService = auctionService;
         this.securityService = securityService;
+        configurePlaceBidButton();
+        configureBuyNowButton();
+        configureAddToWatchlistButton();
     }
 
     public void setAuction(ActiveAuctionDTO auction) {
         this.auction = auction;
         configurePlaceBidField();
-        configurePlaceBidButton();
-        configureBuyNowButton();
-        configureAddToWatchlistButton();
         if (securityService.getAuthenticatedUserRole().contains("ADMIN")) {
             configureDeleteAuctionButton();
         }
@@ -40,11 +40,9 @@ public class ActiveAuctionActionsForm extends FormLayout {
     }
 
     private void configureBuyNowButton() {
-        buyNowButton.setText("Buy now for " + auction.buyNowPrice());
+        buyNowButton.setText("Buy now");
         buyNowButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buyNowButton.addClickListener(event -> {
-            // todo: it runs twice after first click ???
-            System.out.println("BUY NOY BUY NOW");
             var user = (CustomUser) securityService.getAuthenticatedUser();
             auctionService.buyNow(auction.auctionId(), user.getId());
             setActive(false);
@@ -53,15 +51,11 @@ public class ActiveAuctionActionsForm extends FormLayout {
     }
 
     private void configurePlaceBidField() {
-        double currentBid = auction.currentBid() != null
-                ? auction.currentBid().doubleValue() + 1
-                : auction.startingPrice().doubleValue() + 1;
-
-        bidField.setMin(currentBid);
-        bidField.setValue(currentBid);
+        bidField.setMin(auction.currentBid().add(BigDecimal.valueOf(0.5)).doubleValue());
+        bidField.setValue(auction.currentBid().add(BigDecimal.ONE).doubleValue());
         bidField.setStep(0.5);
         bidField.setStepButtonsVisible(true);
-        bidField.setErrorMessage("Your bid must be higher than %s".formatted(currentBid));
+        bidField.setErrorMessage("Your bid must be higher than %s".formatted(auction.currentBid().doubleValue()));
         add(bidField);
     }
 
@@ -69,7 +63,7 @@ public class ActiveAuctionActionsForm extends FormLayout {
         placeBidButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         placeBidButton.addClickListener(event -> {
             var user = (CustomUser) securityService.getAuthenticatedUser();
-            auctionService.placeBid(auction.auctionId(), user.getId(), BigDecimal.valueOf(bidField.getValue()));
+            auctionService.placeBidProcedure(auction.auctionId(), user.getId(), BigDecimal.valueOf(bidField.getValue()));
             setActive(false);
         });
         add(placeBidButton);
