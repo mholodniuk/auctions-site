@@ -128,9 +128,9 @@ public class AuctionService {
 
     @Scheduled(cron = "0 */5 * ? * *")
     public void clearExpiredAuctions() {
-        log.info("executing background job at {}", LocalDateTime.now());
-        var procedure = " CALL move_auction_to_finished(?, ?)";
         var expiredAuctions = auctionDAO.findExpiredAuctions();
+        log.info("executing background job at {}. Affected auctions: {}", LocalDateTime.now(), expiredAuctions.size());
+        var procedure = " CALL move_auction_to_finished(?, ?)";
         for (var auction : expiredAuctions) {
             try {
                 template.update(procedure, auction.auctionId(), auction.bid() != null ? auction.bid() : BigDecimal.ZERO);

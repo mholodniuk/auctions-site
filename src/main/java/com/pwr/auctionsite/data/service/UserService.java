@@ -9,6 +9,7 @@ import com.pwr.auctionsite.data.dto.views.UserInfoDTO;
 import com.pwr.auctionsite.data.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final AddressService addressService;
+    private final PasswordEncoder passwordEncoder;
     private final UserDAO userDAO;
 
     public List<UserInfoDTO> findUsersPaged(String username, int offset, int limit) {
@@ -37,7 +39,7 @@ public class UserService {
         user.setUsername(userDTO.getUsername());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmail(userDTO.getEmail());
         user.setBlocked(false);
         user.setCreatedAt(LocalDateTime.now());
