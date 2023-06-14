@@ -1,5 +1,6 @@
 package com.pwr.auctionsite.security;
 
+import com.pwr.auctionsite.security.model.CustomUser;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,6 +16,11 @@ public class SecurityService {
 
     public User getAuthenticatedUser() {
         return authenticationContext.getAuthenticatedUser(User.class)
+                .orElse(null);
+    }
+
+    public CustomUser getUser() {
+        return authenticationContext.getAuthenticatedUser(CustomUser.class)
                 .orElse(null);
     }
 

@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -123,6 +124,21 @@ public class AuctionService {
                 CALL add_auction_to_watchlist(?, ?, ?)
                 """;
         template.update(sql, userId, auctionId, relation);
+    }
+
+    @Scheduled(cron = "0 */5 * ? * *")
+    public void clearExpiredAuctions() {
+        log.info("executing background job at {}", LocalDateTime.now());
+        var procedure = " CALL move_auction_to_finished(?, ?)";
+        var expiredAuctions = auctionDAO.findExpiredAuctions();
+        for (var auction : expiredAuctions) {
+            try {
+                template.update(procedure, auction.auctionId(), auction.bid() != null ? auction.bid() : BigDecimal.ZERO);
+            } catch (Exception e) {
+                log.error("failed to move auction with id {} to finished", auction.auctionId());
+            }
+            log.info("auction with id {} was moved to finished ", auction.auctionId());
+        }
     }
 
     public void deleteById(Long auctionId) {

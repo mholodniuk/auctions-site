@@ -1,9 +1,11 @@
 package com.pwr.auctionsite.data.dao;
 
 import com.pwr.auctionsite.data.benchmark.TrackExecutionTime;
+import com.pwr.auctionsite.data.dto.ExpiredAuction;
 import com.pwr.auctionsite.data.dto.views.ActiveAuctionDTO;
 import com.pwr.auctionsite.data.dto.views.FinishedAuctionDTO;
 import com.pwr.auctionsite.data.mapper.ActiveAuctionRowMapper;
+import com.pwr.auctionsite.data.mapper.ExpiredAuctionRowMapper;
 import com.pwr.auctionsite.data.mapper.FinishedAuctionRowMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ public class AuctionDAO {
     private final NamedParameterJdbcTemplate namedTemplate;
     private final ActiveAuctionRowMapper activeAuctionRowMapper;
     private final FinishedAuctionRowMapper finishedAuctionRowMapper;
+    private final ExpiredAuctionRowMapper expiredAuctionRowMapper;
 
     @TrackExecutionTime
     public List<ActiveAuctionDTO> findAllPaged(String filter, String category, int offset, int limit) {
@@ -65,7 +68,7 @@ public class AuctionDAO {
     }
 
 
-    // todo: if finished auction winner is null -> bid is also null
+    // todo: if finished auction winner is null -> bid is also null ???
     @TrackExecutionTime
     public List<FinishedAuctionDTO> findArchivedAuctions(Long userId, int offset, int limit) {
         var params = new MapSqlParameterSource();
@@ -83,5 +86,10 @@ public class AuctionDAO {
                 """;
 
         return namedTemplate.query(sql, params, finishedAuctionRowMapper);
+    }
+
+    public List<ExpiredAuction> findExpiredAuctions() {
+        var query = "SELECT id, current_bid FROM auctions WHERE expiration_date < NOW()";
+        return template.query(query, expiredAuctionRowMapper);
     }
 }

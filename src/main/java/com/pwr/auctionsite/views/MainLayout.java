@@ -1,7 +1,6 @@
 package com.pwr.auctionsite.views;
 
 import com.pwr.auctionsite.security.SecurityService;
-import com.pwr.auctionsite.views.account.AccountView;
 import com.pwr.auctionsite.views.account.MyAuctionsView;
 import com.pwr.auctionsite.views.admin.AdminView;
 import com.pwr.auctionsite.views.auctions.ActiveAuctionsListView;
@@ -82,9 +81,6 @@ public class MainLayout extends AppLayout {
             if (isAdmin) {
                 availableRoutes.add(new RouterLink("Admin panel", AdminView.class));
             }
-            var acc = new RouterLink("My account", AccountView.class);
-            acc.setVisible(false);
-            availableRoutes.add(acc);
         }
 
         var verticalLayout = new VerticalLayout();

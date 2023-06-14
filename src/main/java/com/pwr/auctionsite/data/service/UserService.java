@@ -25,6 +25,10 @@ public class UserService {
         return userDAO.findAllPaged(username, offset, limit);
     }
 
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow();
+    }
+
     @Transactional
     @TrackExecutionTime
     public void store(NewUserDTO userDTO, NewAddressDTO addressDTO) {
